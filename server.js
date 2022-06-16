@@ -11,15 +11,15 @@ const app = express();
 // Errors Handlers
 const notFound = require("./middlewares/not-found");
 const errorHandler = require("./middlewares/error-handler");
-const corsOptions = {
-  origin: "https://anonymous-confidants-liard.vercel.app/",
-  optionsSuccessStatus: 200,
-};
+// const corsOptions = {
+//   origin: "https://anonymous-confidants-liard.vercel.app/",
+//   optionsSuccessStatus: 200,
+// };
 
 // INITIALIZE MIDDLEWARE
 app.use(express.json());
 app.use(helmet());
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(xss());
 app.use(
   expressRateLmt({
@@ -27,6 +27,11 @@ app.use(
     max: 100,
   })
 );
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
 
 // DEFINE ROUTES
 
