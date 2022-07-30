@@ -26,8 +26,12 @@ const login = async (req, res) => {
   }
 
   const token = user.createJWT();
-  res.status(statusCodes.OK).json({ user: { name: user.name }, token });
+  res.status(200).json({ user: { name: user.name }, token });
 };
+
+const resetPassword = async(req,res)=>{
+
+}
 
 module.exports = {
   register,

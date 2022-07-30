@@ -18,7 +18,6 @@ const UserSchema = new mongoose.Schema({
     ],
     unique: true,
   },
-
   password: {
     type: String,
     required: [true, "Enter your Password"],
@@ -46,5 +45,31 @@ UserSchema.methods.comparePassword = async function (userpassword) {
 
   return isMatched;
 };
+const User =  mongoose.model("User", UserSchema);
 
-module.exports = mongoose.model("User", UserSchema);
+const therapistSchema = mongoose.Schema({
+  agePreference:{
+    type:String,
+    required:[true,"select age preference"],
+  },
+  sexPreference:{
+    type:String,
+    required:[true,"select sex preference"],
+  },
+  statusPreference:{
+    type: String,
+    required:[true,"select status preference"]
+  },
+  religiousPreference:{
+    type:String,
+    required:[true,"select religious preference"]
+  },
+  availableSessions:{
+    type:String,
+    default:0
+  }
+})
+
+const Therapist = User.discriminator("therapist",therapistSchema)
+
+module.exports = {User, Therapist}
