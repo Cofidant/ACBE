@@ -1,4 +1,5 @@
 const express = require('express')
+const { updatePassword } = require('../controllers/authorization')
 const {
   getTherapist,
   getAllTherapists,
@@ -12,19 +13,22 @@ const {
   authenticationMiddleware,
   restrictRouteTo,
 } = require('../middlewares/authentication')
-const router = require('./auth')
 
 const therapistRouter = express.Router()
 //all routes are protected
 therapistRouter.use(authenticationMiddleware)
 
-router
+therapistRouter
   .route('/')
-  .get(restrictRouteTo('therapist'), getAllTherapists)
-  .post(restrictRouteTo('therapist'), addTherapist)
+  .get(restrictRouteTo('admin'), getAllTherapists)
+  .post(restrictRouteTo('admin'), addTherapist)
 
-router.route('/me').get(getMe).patch(updateMe)
+therapistRouter.route('/me').get(getMe).patch(updateMe)
+therapistRouter.patch('/update-password', updatePassword)
 
-router.route('/:therapistID').patch(updateTherapist).delete(deleteTherapist)
+therapistRouter
+  .route('/:therapistID')
+  .patch(updateTherapist)
+  .delete(deleteTherapist)
 
 module.exports = therapistRouter

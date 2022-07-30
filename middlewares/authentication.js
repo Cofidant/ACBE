@@ -13,13 +13,20 @@ exports.authenticationMiddleware = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.jwtSecret)
-    const { id, username } = decoded
+    const { userId, iat, name } = decoded
 
     //verify if user still exists
-    const user = await User.findById(id)
+    const user = await User.findById(userId)
     if (!user) {
       return next(
         new UnAuthenticated('The user with this token no longer exists')
+      )
+    }
+
+    // confirm if user doesnt change password after the token is issued
+    if (user.changesPasswordAfter(payload.iat)) {
+      throw new UnAuthenticated(
+        'User recently changed password!! please log in again'
       )
     }
 
@@ -32,45 +39,13 @@ exports.authenticationMiddleware = async (req, res, next) => {
 
 exports.restrictRouteTo = (...clearance) => {
   return (req, res, next) => {
-    if (!clearance.includes(req.user.kind)) {
-      throw new UnAuthenticated(
-        'Ooops you are not cleared to perform this action'
-      )
-    }
+    // Is Admin has all access and doest have _kind property
+    if (req.user._kind)
+      if (!clearance.includes(req.user._kind)) {
+        throw new UnAuthenticated(
+          'Ooops you are not cleared to perform this action'
+        )
+      }
     next()
   }
 }
-
-// exports.forgotPassword = catchAsync(async (req, res, next) => {
-//   if (!req.body.email) {
-//     throw new MyError('Please provide an email!!', 404)
-//   }
-//   const user = await User.findOne({ email: req.body.email })
-//   if (!user) {
-//     throw new MyError('User does not exist!!', 404)
-//   }
-//   const resetToken = user.getPasswordResetToken()
-//   await user.save({ validateBeforeSave: false })
-//   const resetURL = `${req.protocol}://${req.get(
-//     'host'
-//   )}/api/v1/users/resetpassword/${resetToken}`
-//   try {
-//     await new Email(user, resetURL).sendPasswordReset()
-//     res
-//       .status(200)
-//       .json({
-//         status: 'success',
-//         message: 'Token sent to your email success fully!!',
-//       })
-//   } catch (err) {
-//     user.passwordResetToken = undefined
-//     user.resetTokenExpiresAt = undefined
-//     await user.save({ validateBeforeSave: false })
-//     return next(
-//       new MyError(
-//         'There is an error sending the email, please try again later!',
-//         500
-//       )
-//     )
-//   }
-// })

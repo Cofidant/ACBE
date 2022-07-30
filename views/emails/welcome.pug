@@ -1,0 +1,17 @@
+extends baseEmail
+
+block content
+    p Hi #{firstName},
+    p Welcome to Anonymous Confidant, we're glad to have you 🎉🙏
+    p We're all a big familiy here, so feel free to share your predicaments
+    table.btn.btn-primary(role='presentation', border='0', cellpadding='0', cellspacing='0')
+        tbody
+            tr
+                td(align='left')
+                    table(role='presentation', border='0', cellpadding='0', cellspacing='0')
+                        tbody
+                            tr
+                                td
+                                    a(href=`${url}`, target='_blank') Upload user photo
+    p If you need any help with posting your first article or anything else, please don't hesitate to contact me!
+    p - Anonymous Confidant, CEO

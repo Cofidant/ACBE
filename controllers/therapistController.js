@@ -1,7 +1,9 @@
 const { StatusCodes } = require('http-status-codes')
-const { BadRequest } = require('../errors')
+const { BadRequest, UnAuthenticated } = require('../errors')
 const Therapist = require('../models/Therapist')
+const User = require('../models/User')
 const catchAsync = require('../utils/catchAsync')
+const QueryHandler = require('../utils/queryHandler')
 const factoryController = require('./handlerFactory')
 
 exports.getMe = catchAsync(async (req, res, next) => {
@@ -19,6 +21,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 })
 
 exports.getAllTherapists = factoryController.getAll(Therapist)
+
 exports.getTherapist = factoryController.getOne(Therapist, [
   ['activeClients', 'username name image'],
 ])

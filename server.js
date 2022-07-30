@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('dotenv').config({ path: './config.env' })
 require('express-async-errors')
 const helmet = require('helmet')
 const cors = require('cors')
