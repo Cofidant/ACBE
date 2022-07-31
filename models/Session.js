@@ -21,6 +21,7 @@ const sessionSchema = mongoose.Schema({
     therapistID:{
         type: mongoose.Schema.ObjectId,
         ref:"Therapist"
-    }
+    },
+    
 })
 module.exports = mongoose.model("session",sessionSchema)

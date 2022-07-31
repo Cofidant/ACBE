@@ -68,10 +68,9 @@ module.exports.getMe = catchAsync(async(req,res,next)=>{
 })
 
 module.exports.getTherapy = catchAsync(async(req,res,next)=>{
-    const patient = await Patient.findById(req.user.id);
     try {
     //get available therapist
-    const therapist = fetchTherapist(patient.profile,process.env.MAXSESSION)
+    const therapist = fetchTherapist(req.body.profile,process.env.MAXSESSION)
     const patientID = req.user.id;
     //create session from id embeded in token and most available therapist id
     const newSession = await createTherapySession(req.body.duration,patientID,therapist._id);
