@@ -8,6 +8,8 @@ const {
   deleteTherapist,
   getMe,
   updateMe,
+  getAllMySessions,
+  addSessionNotes,
 } = require('../controllers/therapistController')
 const {
   authenticationMiddleware,
@@ -18,6 +20,7 @@ const therapistRouter = express.Router()
 //all routes are protected
 therapistRouter.use(authenticationMiddleware)
 
+// only admins can get all therapist or add/delete a therapist
 therapistRouter
   .route('/')
   .get(restrictRouteTo('admin'), getAllTherapists)
@@ -28,7 +31,15 @@ therapistRouter.patch('/update-password', updatePassword)
 
 therapistRouter
   .route('/:therapistID')
-  .patch(updateTherapist)
-  .delete(deleteTherapist)
+  .patch(restrictRouteTo('admin'), updateTherapist)
+  .delete(restrictRouteTo('admin'), deleteTherapist)
+  .get(getTherapist)
+
+// All routes below are specific to a therapist
+therapistRouter.use(restrictRouteTo('therapist'))
+
+therapistRouter.get('/me/sessions', getAllMySessions)
+therapistRouter.route('/me/sessions/:sessionID/notes').post(addSessionNotes)
+// .get(getSessionNotes)
 
 module.exports = therapistRouter

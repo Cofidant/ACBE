@@ -16,9 +16,9 @@ const therapistSchema = mongoose.Schema(
         date_acquired: Date,
       },
     ],
-    practicing_from: { 
+    practicing_from: {
       type: Date, //Starting Date of Practice can be used to determine years of experience
-      default:Date(),
+      default: Date(),
     },
     about: {
       type: String,
@@ -47,12 +47,6 @@ const therapistSchema = mongoose.Schema(
       type: String,
       default: 'default.jpg',
     },
-    activeClients: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: 'Patient',
-      },
-    ],
   },
   {
     toJSON: { virtuals: true },
@@ -60,13 +54,42 @@ const therapistSchema = mongoose.Schema(
   }
 )
 
-// virtual fields
-therapistSchema.virtual('activeSessions').get(function () {
-  return this.activeClients.length
+// Virtual Fields
+
+// activeSessions: when populated returns the list of un-expired sessions therapist
+therapistSchema.virtual('activeSessions', {
+  ref: 'Session',
+  localField: '_id',
+  foreignField: 'therapist',
+  match: {
+    expiryDate: { $gte: Date.now() },
+  },
 })
+
+// patientReviews: when populated returns all reviews for the therapist
+therapistSchema.virtual('patientReviews', {
+  ref: 'Review',
+  localField: '_id',
+  foreignField: 'therapist',
+})
+
+// only available if patientReviews is populated
+therapistSchema.virtual('averageRating').get(function () {
+  const reviews = this.patientReviews
+  if (!reviews) return null
+  const total = reviews.reduce((a, b) => a + b.rating, 0)
+  return total / reviews.length
+})
+
 therapistSchema.virtual('years_of_experience').get(function () {
-  const years = this.practicing_from.getFullYear() - new Date().getFullYear();
-  return years;
+  const years = this.practicing_from.getFullYear() - new Date().getFullYear()
+  return years
+})
+
+// Hooks
+therapistSchema.pre('findOne', function (next) {
+  this.populate('activeSessions').populate('patientReviews')
+  next()
 })
 
 const Therapist = User.discriminator('therapist', therapistSchema)
