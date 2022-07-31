@@ -114,5 +114,6 @@ module.exports = {
   register,
   login,
   updatePassword,
-  resetPassword,forgotPassword,
+  resetPassword,
+  forgotPassword,
 }

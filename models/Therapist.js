@@ -3,6 +3,27 @@ const User = require('./User')
 
 const therapistSchema = mongoose.Schema(
   {
+    phone: {
+      type: String,
+    },
+    gender: {
+      type: String,
+    },
+    qualifictaion: [
+      {
+        qualifictaion_name: String,
+        institute_name: String,
+        date_acquired: Date,
+      },
+    ],
+    practicing_from: { 
+      type: Date, //Starting Date of Practice can be used to determine years of experience
+      default:Date(),
+    },
+    about: {
+      type: String,
+    },
+    specialization: [String],
     state: {
       type: String,
     },
@@ -42,6 +63,10 @@ const therapistSchema = mongoose.Schema(
 // virtual fields
 therapistSchema.virtual('activeSessions').get(function () {
   return this.activeClients.length
+})
+therapistSchema.virtual('years_of_experience').get(function () {
+  const years = this.practicing_from.getFullYear() - new Date().getFullYear();
+  return years;
 })
 
 const Therapist = User.discriminator('therapist', therapistSchema)
