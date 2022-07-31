@@ -63,7 +63,7 @@ module.exports.getMe = catchAsync(async(req,res,next)=>{
     const id = req.user.id;
     const patient = await Patient.findById(id);
     if(!patient){
-        res.status(StatusCodes.NOT_FOUND).json("user does notexist")
+        res.status(StatusCodes.NOT_FOUND).json("user does not exist")
     }
 })
 
