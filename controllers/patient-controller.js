@@ -1,38 +1,84 @@
+const Patient = require("../models/Patient");
 const Therapist = require("../models/User");
+const catchAsync = require("../utils/catchAsync");
+const { createTherapySession } = require("./session-controller");
+const { StatusCodes } = require("http-status-codes");
 
 //find a therapist based on preference and standard max-activeSession
-module.exports.fetchTherapist = async(preference,maxActiveSession) =>{
-    //find therapists with matchin preference (most likely more than one)
-    const therapists = await Therapist.find({
-        agePreference:preference.agePreference,
-        sexPreference:preference.sexPreference,
-        locationPreference:preference.location,
-        statusPreference:preference.status
-    });
-    //get therapists below maxActiveSessions
-    const availableTherapists = [...therapists].filter(therapist =>{
-        return parseInt(therapist.activeSessions) < maxActiveSession;
+const fetchTherapist = async(profile,maxActiveSession) =>{
+    //grab all therapists   
+    let therapists = await Therapist.find();
+    therapists = [...therapists].filter(therapist =>{
+    //filter only available therapists
+    return therapist.sessions.length < maxActiveSession;
     })
-    //check for no availability
-    if(!availableTherapists){
-        return;
+    //filter therapists by gender if gender is specified
+    if(profile.gender){
+    therapists = availableTherapists.filter(therapist =>{
+        //update therapists
+            return profile.gender == therapist.sexPreference;
+        });
+        if(!filtered_by_gender.length){
+            //return
+            return {message:`sorry,no ${profile.gender} therapists available`}
+        }
     }
-    //return available therapists if no. of available is one
-    if(!availableTherapists.length > 1){
-        return availableTherapists[0];
+    //filter by age
+    if(profile.age){
+        therapists = therapists.filter(therapist =>{
+            return profile.age == therapist.agePreference
+        })
+        if(!therapists.length){
+            return {message:`sorry,no ${profile.age} therapists available`}
+        }
+    }//filter by religion
+    if(preference.religion){
+        therapists = therapists.filter(therapist =>{
+            return profile.religion == therapist.religionPreference
+        })
+        if(!therapists.length){
+            return {message:`sorry,no ${profile.religion} therapists available`}
+        }
     }
-    //if more than one are available
-    const findMostAvailable = (availableTherapists) =>{
-        let mostAvailable = availableTherapists[0];
-        //find most available
-        availableTherapists.map(
-            therapist =>{
-                if(mostAvailable.activeSessions > parseInt(therapist.activeSessions)){
-                    mostAvailable = therapist;
-                }
-            }
-        )
-        return mostAvailable;
+    if(profile.location){
+        therapists = therapists.filter(therapist =>{
+            return profile.location == therapist.locationPreference
+        })
+        if(!therapists.length){
+            return {message:`sorry,no ${preferencelocation} therapists available`}
+        }
     }
-findMostAvailable(availableTherapists);
+    if(profile.status){
+        therapists = therapists.filter(therapist =>{
+            return profile.status == therapist.statusPreference
+        })
+        if(!therapists.length){
+            return {message:`sorry,no ${profile.status} therapists available`}
+        }
+    }
+    return therapists;
 }
+
+module.exports.getMe = catchAsync(async(req,res,next)=>{
+    const id = req.user.id;
+    const patient = await Patient.findById(id);
+    if(!patient){
+        res.status(StatusCodes.NOT_FOUND).json("user does notexist")
+    }
+})
+
+module.exports.getTherapy = catchAsync(async(req,res,next)=>{
+    const patient = await Patient.findById(req.user.id);
+    try {
+    //get available therapist
+    const therapist = fetchTherapist(patient.profile,process.env.MAXSESSION)
+    const patientID = req.user.id;
+    //create session from id embeded in token and most available therapist id
+    const newSession = await createTherapySession(req.body.duration,patientID,therapist._id);
+    res.status(StatusCodes.CREATED).json({message:"new therapy session created",data:newSession})
+        
+    } catch (error) {
+        res.status(500).json("could not create session");
+    }
+    }
+)

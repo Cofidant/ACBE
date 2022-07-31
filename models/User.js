@@ -1,75 +1,98 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const mongoose = require('mongoose')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const crypto = require('crypto')
 
-const UserSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "Enter your Name"],
-    minlength: 4,
-    maxlength: 100,
-  },
-  email: {
-    type: String,
-    required: [true, "Enter your Email Address"],
-    match: [
-      /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i,
-      "Enter a Valid Email Address",
-    ],
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: [true, "Enter your Password"],
-    minlength: 6,
-  },
-});
+const UserSchema = new mongoose.Schema(
+  {
+    sessions:{
+      type:Array,
+      default:[]
+    },
+    name: {
+      type: String,
+      required: [true, 'Enter your Name'],
+      minlength: 4,
+      maxlength: 100,
+    },
+    email: {
+      type: String,
+      required: [true, 'Enter your Email Address'],
+      match: [
+        /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i,
+        'Enter a Valid Email Address',
+      ],
+      unique: [true, 'Email already Exist'],
+    },
 
-UserSchema.pre("save", async function () {
-  const salt = await bcrypt.genSaltSync(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
+    password: {
+      type: String,
+      required: [true, 'Enter your Password'],
+      minlength: 6,
+      select: false,
+    },
+    passwordChangedAt: {
+      type: Date,
+      select: false,
+      default: Date.now(),
+    },
+    passwordResetToken: String,
+    resetTokenExpiresAt: Date,
+  },
+  
+  {
+    timestamps: true,
+    discriminatorKey: '_kind',
+  },
+
+)
+
+UserSchema.pre('save', async function (next) {
+  /* If password is not modified skip */
+  if (!this.isModified('password')) {
+    return next()
+  }
+  console.log('im here')
+  const salt = await bcrypt.genSaltSync(10)
+  this.password = await bcrypt.hash(this.password, salt)
+  this.passwordChangedAt = Date.now() - 1000
+  next()
+})
 
 UserSchema.methods.createJWT = function () {
   return jwt.sign(
-    { userId: this._id, name: this.name },
+    { userId: this._id, name: this.name, iat: Date.now() + 1000 },
     process.env.jwtSecret,
     {
       expiresIn: process.env.jwtLifetime,
     }
-  );
-};
+  )
+}
 
 UserSchema.methods.comparePassword = async function (userpassword) {
-  const isMatched = await bcrypt.compare(userpassword, this.password);
+  const isMatched = await bcrypt.compare(userpassword, this.password)
+  return isMatched
+}
 
-  return isMatched;
-};
-const User =  mongoose.model("User", UserSchema);
-
-const therapistSchema = mongoose.Schema({
-  agePreference:{
-    type:String,
-    required:[true,"select age preference"],
-  },
-  sexPreference:{
-    type:String,
-    required:[true,"select sex preference"],
-  },
-  statusPreference:{
-    type: String,
-    required:[true,"select status preference"]
-  },
-  religiousPreference:{
-    type:String,
-    required:[true,"select religious preference"]
-  },
-  availableSessions:{
-    type:String,
-    default:0
+UserSchema.methods.changesPasswordAfter = function (tokenTimeStamp) {
+  if (this.passwordChangedAt) {
+    const lastPassChangedAt = parseInt(this.passwordChangedAt.getTime() / 1000)
+    return tokenTimeStamp < lastPassChangedAt
   }
-})
+  return false
+}
 
-const Therapist = User.discriminator("therapist",therapistSchema)
+UserSchema.methods.getPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex')
 
-module.exports = {User, Therapist}
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex')
+
+  //token expires after 15 minutes
+  this.resetTokenExpiresAt = Date.now() + 15 * 60 * 1000
+  return resetToken
+}
+
+module.exports = mongoose.model('User', UserSchema)
