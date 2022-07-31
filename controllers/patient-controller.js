@@ -1,8 +1,10 @@
 const Patient = require("../models/Patient");
 const Therapist = require("../models/User");
 const catchAsync = require("../utils/catchAsync");
-const { createTherapySession } = require("./session-controller");
+const { createTherapySession, endTherapySession } = require("./session-controller");
 const { StatusCodes } = require("http-status-codes");
+const { findById, findByIdAndDelete } = require("../models/User");
+const Session = require("../models/Session");
 
 //find a therapist based on preference and standard max-activeSession
 const fetchTherapist = async(profile,maxActiveSession) =>{
@@ -81,3 +83,29 @@ module.exports.getTherapy = catchAsync(async(req,res,next)=>{
     }
     }
 )
+
+module.exports.getSessions = async(req,res) =>{
+    const sessions = [];
+    const { id } = req.user;
+    const user = await Patient.findById(id);
+    if(!user){
+        res.status(StatusCodes.NOT_FOUND).json("user does not exist")
+    }
+    const sessionIDs = user.sessions;
+    await sessionIDs.map(session =>{
+        Patient.findById(session).then(
+            session =>{sessions.push(session)}
+        )
+    })
+    res.status(StatusCodes.OK.json(sessions))
+}
+
+module.exports.getSession = async(req,res) =>{
+    const session = await Session.findById(req.params.id);
+    res.status(StatusCodes.OK).json(session);
+}
+
+module.exports.endSession = async(req,res) =>{
+    const modified = await endTherapySession(req.params.id)
+    res.status(StatusCodes.OK).json(modified);
+}

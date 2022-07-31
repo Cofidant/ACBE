@@ -1,3 +1,4 @@
+
 const Session = require("../models/Session");
 const catchAsync = require("../utils/catchAsync");
 
@@ -29,5 +30,11 @@ module.exports.createTherapySession = async(duration, patientID,therapistID)=>{
     });
    await updateSessions(session.patientID,session._id);
    await updateSessions(session.therapistID,session._id);
-
+   return;
 }
+
+module.exports.endTherapySession = async(id)=>{
+   const modified = await findByIdAndDelete(id);
+   return modified;
+}
+
