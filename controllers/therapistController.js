@@ -1,12 +1,14 @@
 const { StatusCodes } = require('http-status-codes')
 const { BadRequest, UnAuthenticated } = require('../errors')
+const Review = require('../models/Review')
 const Session = require('../models/Session')
 const Therapist = require('../models/Therapist')
 const catchAsync = require('../utils/catchAsync')
 const factoryController = require('./handlerFactory')
 
 exports.getMe = catchAsync(async (req, res, next) => {
-  res.status(StatusCodes.OK).json({ status: 'success', data: req.user })
+  const me = await Therapist.findById(req.user._id)
+  res.status(StatusCodes.OK).json({ status: 'success', data: me })
 })
 
 exports.updateMe = catchAsync(async (req, res, next) => {
