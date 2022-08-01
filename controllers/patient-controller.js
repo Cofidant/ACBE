@@ -109,3 +109,12 @@ module.exports.endSession = async(req,res) =>{
     const modified = await endTherapySession(req.params.id)
     res.status(StatusCodes.OK).json(modified);
 }
+//req.body includes selected therapists id, contract period (duration)
+module.exports.selectTherapy = async(req,res)=>{
+    const therapist = await Therapist.find(req.body.id);
+    if(!therapist){res.status(400).json({status:"failed",message:"please select a therapist"})}
+    const patient = await Patient.find(req.user.id);
+    if(!patient){res.status(StatusCodes.NOT_FOUND).json({status:"failed",message:"user not found"})};
+    const newSession = await createTherapySession(req.body.duration,patient._id,therapist._id);
+    if(!newSession){res.status(500).json({status:"failed",message:"could not create therapy session"})}
+}
