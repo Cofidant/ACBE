@@ -1,27 +1,63 @@
-const mongoose = require("mongoose");
-const Patient = require("./Patient");
-const Therapist = require("./Therapist")
+const mongoose = require('mongoose')
 
-const sessionSchema = mongoose.Schema({
-    TherapyType:{
-        type:String,
-        required:[true,]
+const appointmentSchema = mongoose.Schema({
+  start_time: {
+    type: Date,
+  },
+  end_time: {
+    type: Date,
+  },
+  status: {
+    type: String,
+    enum: {
+      values: ['active', 'canceled', 'complete', 'pending'],
+      message:
+        "status is one of ('active', 'canceled','pending' or 'complete')",
     },
-    StartDate:{
-        type:Date,
-        default:Date.now(),
-    },
-    EndDate:{
-        type:Date
-    },
-    patientID:{
-       type: mongoose.Schema.ObjectId,
-       ref:"Patient"
-    },
-    therapistID:{
-        type: mongoose.Schema.ObjectId,
-        ref:"Therapist"
-    },
-    
+  },
 })
-module.exports = mongoose.model("session",sessionSchema)
+
+// Notes or Observations taken by Therapist
+const noteSchema = mongoose.Schema(
+  {
+    note_text: String,
+  },
+  { timestamps: true }
+)
+
+const sessionSchema = mongoose.Schema(
+  {
+    therapist: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Therapist',
+      required: [true, 'Please provide the Therapist id'],
+    },
+    patient: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Patient',
+      required: [true, 'Please provide the patient id'],
+    },
+    subscribedDate: {
+      type: Date,
+      required: [true, 'Please provide the date subscribed'],
+    },
+    expiryDate: {
+      type: Date,
+      required: [true, 'Please provide the expiry date'],
+    },
+    appointments: [appointmentSchema],
+    notes: [noteSchema],
+  },
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+)
+
+sessionSchema.virtual('expired').get(function () {
+  return Date.now() >= this.expiryDate
+})
+
+const Session = mongoose.model('Session', sessionSchema)
+module.exports = Session

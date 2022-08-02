@@ -118,3 +118,8 @@ module.exports.selectTherapy = async(req,res)=>{
     const newSession = await createTherapySession(req.body.duration,patient._id,therapist._id);
     if(!newSession){res.status(500).json({status:"failed",message:"could not create therapy session"})}
 }
+
+//anonymously share story
+module.exports.shareStory = async(req,res)=>{
+    
+}

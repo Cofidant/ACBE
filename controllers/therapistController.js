@@ -1,13 +1,14 @@
 const { StatusCodes } = require('http-status-codes')
 const { BadRequest, UnAuthenticated } = require('../errors')
+const Review = require('../models/Review')
+const Session = require('../models/Session')
 const Therapist = require('../models/Therapist')
-const User = require('../models/User')
 const catchAsync = require('../utils/catchAsync')
-const QueryHandler = require('../utils/queryHandler')
 const factoryController = require('./handlerFactory')
 
 exports.getMe = catchAsync(async (req, res, next) => {
-  res.status(StatusCodes.OK).json({ status: 'success', data: req.user })
+  const me = await Therapist.findById(req.user._id)
+  res.status(StatusCodes.OK).json({ status: 'success', data: me })
 })
 
 exports.updateMe = catchAsync(async (req, res, next) => {
@@ -15,13 +16,43 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 
   if (data.hasOwnProperty('password'))
     return next(new BadRequest('You cant update password from here!'))
-
   const updated = Therapist.findByIdAndUpdate(req.user._id, data)
   res.status(StatusCodes.OK).json({ status: 'success', data: updated })
 })
 
-exports.getAllTherapists = factoryController.getAll(Therapist)
+// get all sessions of active therapist
+exports.getAllMySessions = catchAsync(async (req, res, next) => {
+  const therapist = req.user._id
+  const sessions = await Session.find({ therapist }).sort('-expiryDate')
+  res
+    .status(StatusCodes.OK)
+    .json({ status: 'success', results: sessions.length, data: sessions })
+})
 
+// record a note on a session
+exports.addSessionNotes = catchAsync(async (req, res, next) => {
+  const { sessionID } = req.params
+  const { note_text } = req.body
+  if (!note_text) return next(new BadRequest('Pleases provide the note_text!'))
+
+  const session = await Session.updateOne(
+    { _id: sessionID, therapist: req.user._id },
+    {
+      $addToSet: { notes: { note_text } },
+    },
+    { new: true }
+  )
+
+  if (!session) return next(new BadRequest('Invalid sessionID'))
+
+  res.status(StatusCodes.CREATED).json({
+    status: 'success',
+    message: 'Note added successfully',
+    data: session,
+  })
+})
+
+exports.getAllTherapists = factoryController.getAll(Therapist)
 exports.getTherapist = factoryController.getOne(Therapist, [
   ['activeClients', 'username name image'],
 ])

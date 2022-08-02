@@ -25,9 +25,8 @@ const login = catchAsync(async (req, res) => {
     throw new BadRequest('Enter Email and Password')
   }
 
-  const user = await User.findOne({ email })
+  const user = await User.findOne({ email }).select('+password')
   // compare
-
   if (!user) {
     throw new UnAuthenticated('Invalid Credentials')
   }
@@ -36,7 +35,6 @@ const login = catchAsync(async (req, res) => {
   if (!isPasswordCorrect) {
     throw new UnAuthenticated('Invalid Credentials')
   }
-
   const token = user.createJWT()
   res.status(StatusCodes.OK).json({ user: { name: user.name }, token })
 })
@@ -110,10 +108,10 @@ const resetPassword = catchAsync(async (req, res, next) => {
   res.status(StatusCodes.CREATED).json({ user: { name: user.name }, token })
 })
 
-
 module.exports = {
   register,
   login,
   updatePassword,
-  resetPassword,forgotPassword,
+  resetPassword,
+  forgotPassword,
 }

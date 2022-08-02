@@ -13,7 +13,7 @@ exports.authenticationMiddleware = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.jwtSecret)
-    const { userId, iat, name } = decoded
+    const { userId, iat } = decoded
 
     //verify if user still exists
     const user = await User.findById(userId)
@@ -24,7 +24,7 @@ exports.authenticationMiddleware = async (req, res, next) => {
     }
 
     // confirm if user doesnt change password after the token is issued
-    if (user.changesPasswordAfter(payload.iat)) {
+    if (user.changesPasswordAfter(iat)) {
       throw new UnAuthenticated(
         'User recently changed password!! please log in again'
       )
