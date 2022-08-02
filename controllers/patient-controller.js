@@ -3,8 +3,9 @@ const Therapist = require("../models/User");
 const catchAsync = require("../utils/catchAsync");
 const { createTherapySession, endTherapySession } = require("./session-controller");
 const { StatusCodes } = require("http-status-codes");
-const { findById, findByIdAndDelete } = require("../models/User");
 const Session = require("../models/Session");
+const Story = require("../models/Story");
+const { getStory,deleteStory } = require("./stories-controller");
 
 //find a therapist based on preference and standard max-activeSession
 const fetchTherapist = async(profile,maxActiveSession) =>{
@@ -120,6 +121,40 @@ module.exports.selectTherapy = async(req,res)=>{
 }
 
 //anonymously share story
-module.exports.shareStory = async(req,res)=>{
-    
+module.exports.createStory = async(req,res)=>{
+    const {preview, body} = req.body;
+    const story = await Story.create({
+        preview,body
+    });
+    const id = req.user.id;
+    const updated = await Patient.findByIdAndUpdate(id,{
+        "$push":{
+            stories: story
+        }
+    });
+    res.status(StatusCodes.CREATED).json({message:"new story created", data: updated})
+}
+//get a story
+module.exports.getStory = async(req,res)=>{
+    const storyID = req.params.id;
+    if(!storyID){res.status(400).json({message:"select a story"})}
+    const story = await getStory(storyID);
+    if(!story){
+        res.status(StatusCodes.NOT_FOUND).json({})
+    }
+    res.status(StatusCodes.OK).json(story); 
+};
+//delete a story
+module.exports.deleteStory = async(req,res)=>{
+    const storyID = req.params.id;
+    if(!storyID){res.status(400).json({message:"select a story to delete"})}
+    const updated = await deleteStory(storyID);
+    if(!updated){ res.status(500).json({message:"could not delete story"})};
+    res.status(StatusCodes.OK).json({message:"story deleted",data:updated});
+}
+//get my stories
+module.exports.getMyStories = async(req,res)=>{
+    const patientID = req.user.id;
+    const user = await Patient.findById(patientID);
+    res.status(StatusCodes.OK).json(user.stories);
 }
