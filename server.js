@@ -5,6 +5,8 @@ const cors = require('cors')
 const xss = require('xss-clean')
 const expressRateLmt = require('express-rate-limit')
 const express = require('express')
+const { Server } = require('socket.io')
+const WebSockets = require('./utils/websocket')
 const list_end_points = require('list_end_points')
 const connectDB = require('./config/theDatabase')
 const app = express()
@@ -56,7 +58,13 @@ const start = async () => {
     await connectDB(
       process.env.mongo_URI || 'mongodb://localhost:27017/anonymous_confidant'
     )
-    app.listen(PORT, () => console.log(`Server started at port ${PORT}`))
+    /* create a http server */
+    const httpServer = app.listen(PORT, () =>
+      console.log(`Server started at port ${PORT}`)
+    )
+    /** Create socket connection */
+    global.io = new Server(httpServer)
+    global.io.on('connection', WebSockets.connection)
   } catch (error) {
     console.log(error)
   }
