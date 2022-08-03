@@ -1,5 +1,5 @@
-const express = require('express')
-const { updatePassword } = require('../controllers/authorization')
+const express = require('express');
+const { updatePassword } = require('../controllers/authorization');
 const {
   getTherapist,
   getAllTherapists,

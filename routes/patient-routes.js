@@ -1,21 +1,19 @@
-const { User } = require("../models/User");
+const { updatePassword } = require('../controllers/authorization');
+const { authenticationMiddleware } = require("../middlewares/authentication");
+const { getTherapy, getMe, getSessions, getSession, endSession, selectTherapy, createStory, getStory, deleteStory, getMyStories } = require("../controllers/patient-controller");
 
-const router = require("express").Router();
-const fetchTherapist = require("../controllers/patient-controller").fetchTherapist;
+const patientRouter = require("express").Router();
 
-router.post("/get-therapist", async (req,res)=>{
+patientRouter.patch("/update-password",authenticationMiddleware, updatePassword);
+patientRouter.post("/get-therapy",authenticationMiddleware,getTherapy);
+patientRouter.post("/therapy/select",authenticationMiddleware,selectTherapy);
+patientRouter.get("/me",authenticationMiddleware,getMe);
+patientRouter.get("/sessions",authenticationMiddleware,getSessions);
+patientRouter.get("/session/:id",authenticationMiddleware,getSession);
+patientRouter.delete("/session/:id",authenticationMiddleware,endSession);
+patientRouter.post("/new-story",authenticationMiddleware,createStory);
+patientRouter.get("/story/:id",authenticationMiddleware,getStory);
+patientRouter.delete("/story/:id",authenticationMiddleware,deleteStory);
+patientRouter.get("/my-stories",authenticationMiddleware,getMyStories);
 
-    const mostAvailable = await fetchTherapist(req.body.preference,5);
-    if(!mostAvailable){
-        //no available therapist
-        res.status(200).json("no match available at the moment");
-    }
-    res.status(200).json(mostAvailable)
-})
-
-router.get("/accept-therapy/:id",async(req,res)=>{
-    const {id} = req.user.id;
-
-})
-
-module.exports = router;
+module.exports = patientRouter;

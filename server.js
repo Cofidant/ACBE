@@ -42,10 +42,10 @@ app.get('/', (req, res) => {
 })
 const authRouters = require('./routes/auth')
 const therapistRouter = require('./routes/therapistRoutes')
+const patientRouter = require('./routes/patient-routes')
 app.use('/api/v1/auth', authRouters)
 app.use('/api/v1/therapists', therapistRouter)
-
-app
+app.use('/api/v1/patients',patientRouter)
 app.use(notFound)
 app.use(errorHandler)
 

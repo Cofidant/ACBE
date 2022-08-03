@@ -29,7 +29,14 @@ const therapistSchema = mongoose.Schema(
     },
     lga: String,
     agePreference: {
-      type: String, //"12-45"
+      upper: {
+        type: Number,
+        default: 100,
+      },
+      lower: {
+        type: Number,
+        default: 0,
+      },
     },
     sexPreference: {
       type: String,
@@ -76,7 +83,7 @@ therapistSchema.virtual('patientReviews', {
 // only available if patientReviews is populated
 therapistSchema.virtual('averageRating').get(function () {
   const reviews = this.patientReviews
-  if (!reviews) return null
+  if (!reviews) return 0
   const total = reviews.reduce((a, b) => a + b.rating, 0)
   return total / reviews.length
 })
@@ -91,6 +98,12 @@ therapistSchema.pre('findOne', function (next) {
   this.populate('activeSessions').populate('patientReviews')
   next()
 })
+
+// methods
+
+therapistSchema.methods.isWithinAgeRange = function (age) {
+  return this.agePreference?.upper >= age && this.agePreference?.lower <= age
+}
 
 const Therapist = User.discriminator('therapist', therapistSchema)
 module.exports = Therapist

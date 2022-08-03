@@ -5,6 +5,10 @@ const crypto = require('crypto')
 
 const UserSchema = new mongoose.Schema(
   {
+    sessions:{
+      type:Array,
+      default:[]
+    },
     name: {
       type: String,
       required: [true, 'Enter your Name'],
@@ -35,10 +39,12 @@ const UserSchema = new mongoose.Schema(
     passwordResetToken: String,
     resetTokenExpiresAt: Date,
   },
+  
   {
     timestamps: true,
     discriminatorKey: '_kind',
-  }
+  },
+
 )
 
 UserSchema.pre('save', async function (next) {
