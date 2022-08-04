@@ -7,8 +7,8 @@ const {
 } = require('./session-controller')
 const { StatusCodes } = require('http-status-codes')
 const Session = require('../models/Session')
-const Story = require('../models/Story')
-const { getStory, deleteStory } = require('./stories-controller')
+const factoryController = require('./handlerFactory')
+const { BadRequest } = require('../errors')
 
 // create a search weight Function
 const getTherapistSuitabilty = (therapist, profile) => {
@@ -57,27 +57,21 @@ module.exports.getMe = catchAsync(async (req, res, next) => {
 })
 
 module.exports.getTherapy = catchAsync(async (req, res, next) => {
-  try {
-    //get available therapist
-    const therapist = fetchTherapist(req.body.profile, process.env.MAXSESSION)
-    const patientID = req.user.id
-    //create session from id embeded in token and most available therapist id
-    const newSession = await createTherapySession(
-      req.body.duration,
-      patientID,
-      therapist._id
-    )
-    res
-      .status(StatusCodes.CREATED)
-      .json({ message: 'new therapy session created', data: newSession })
-  } catch (error) {
-    res.status(500).json('could not create session')
-  }
+  //get available therapist
+  const potentialTherapists = fetchTherapist(
+    req.body.profile,
+    process.env.MAXSESSION
+  )
+  res.status(StatusCodes.OK).json({
+    status: 'success',
+    results: potentialTherapists.length,
+    data: potentialTherapists,
+  })
 })
 
 module.exports.getSessions = async (req, res) => {
   const sessions = []
-  const { id } = req.user
+  const { id } = req.user._id
   const user = await Patient.findById(id)
   if (!user) {
     res.status(StatusCodes.NOT_FOUND).json('user does not exist')
@@ -101,75 +95,31 @@ module.exports.endSession = async (req, res) => {
   res.status(StatusCodes.OK).json(modified)
 }
 //req.body includes selected therapists id, contract period (duration)
-module.exports.selectTherapy = async (req, res) => {
-  const therapist = await Therapist.find(req.body.id)
+module.exports.selectTherapy = catchAsync(async (req, res, next) => {
+  const { therapistID, duration } = req.body
+
+  const therapist = await Therapist.findById(therapistID)
   if (!therapist) {
-    res
-      .status(400)
-      .json({ status: 'failed', message: 'please select a therapist' })
+    return next(new BadRequest('Invalid therapistID'))
   }
-  const patient = await Patient.find(req.user.id)
-  if (!patient) {
-    res
-      .status(StatusCodes.NOT_FOUND)
-      .json({ status: 'failed', message: 'user not found' })
-  }
+  if (!duration) return next(new BadRequest('please provide the duration'))
+
   const newSession = await createTherapySession(
-    req.body.duration,
-    patient._id,
+    duration,
+    req.user._id,
     therapist._id
   )
-  if (!newSession) {
-    res
-      .status(500)
-      .json({ status: 'failed', message: 'could not create therapy session' })
-  }
-}
 
-//anonymously share story
-module.exports.createStory = async (req, res) => {
-  const { preview, body } = req.body
-  const story = await Story.create({
-    preview,
-    body,
+  if (!newSession)
+    res.status(500).json({ status: 'error', message: 'Something went wrong!' })
+
+  res.status(StatusCodes.CREATED).json({
+    status: 'success',
+    message: 'session created successfully',
+    data: newSession,
   })
-  const id = req.user.id
-  const updated = await Patient.findByIdAndUpdate(id, {
-    $push: {
-      stories: story,
-    },
-  })
-  res
-    .status(StatusCodes.CREATED)
-    .json({ message: 'new story created', data: updated })
-}
-//get a story
-module.exports.getStory = async (req, res) => {
-  const storyID = req.params.id
-  if (!storyID) {
-    res.status(400).json({ message: 'select a story' })
-  }
-  const story = await getStory(storyID)
-  if (!story) {
-    res.status(StatusCodes.NOT_FOUND).json({})
-  }
-  res.status(StatusCodes.OK).json(story)
-}
-//delete a story
-module.exports.deleteStory = async (req, res) => {
-  const storyID = req.params.id
-  if (!storyID) {
-    res.status(400).json({ message: 'select a story to delete' })
-  }
-  const updated = await deleteStory(storyID)
-  if (!updated) {
-    res.status(500).json({ message: 'could not delete story' })
-  }
-  res.status(StatusCodes.OK).json({ message: 'story deleted', data: updated })
-}
-//get my stories
-module.exports.getMyStories = async (req, res) => {
-  const patientID = req.user.id
-  const user = await Patient.findById(patientID)
-  res.status(StatusCodes.OK).json(user.stories)
-}
+})
+
+exports.getAllPatients = factoryController.getAll(Patient)
+exports.getPatient = factoryController.getOne(Patient)
+exports.deletePatient = factoryController.deleteOne(Patient)

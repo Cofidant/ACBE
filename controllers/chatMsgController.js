@@ -6,7 +6,8 @@ const catchAsync = require('../utils/catchAsync')
 const factoryController = require('./handlerFactory')
 
 exports.attachSessionFilter = catchAsync(async (req, res, next) => {
-  const { sessionID } = req.params
+  const sessionID =
+    req.params.sessionID || req.query.sessionID || req.body.sessionID
   const session = await Session.findById(sessionID)
   if (!session) return next(new BadRequest('Invalid SessionID'))
   req.filter = { sessionID: session._id }
@@ -19,9 +20,12 @@ exports.postMessage = catchAsync(async (req, res, next) => {
   const session = req.session
   const { messageText, messageType } = req.body
   const sender = req.user._id
-
+  console.log(session.therapist, '>>>>', session.patient)
   // check if the user belong to the session
-  if (session.therapist != sender && session.patient != sender)
+  if (
+    session.therapist?._id?.toString() != sender &&
+    session.patient?._id?.toString() != sender
+  )
     return next(new UnAuthenticated('You cant send messages here!'))
 
   const newMessage = await ChatMessage.create({
@@ -39,7 +43,7 @@ exports.postMessage = catchAsync(async (req, res, next) => {
 })
 
 exports.markAllMessagesRead = catchAsync(async (req, res, next) => {
-  const { sessionID } = req.filter
+  const sessionID = req.session._id
   const readByUserId = req.user._id
 
   const result = await ChatMessage.updateMany(

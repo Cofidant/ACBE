@@ -32,13 +32,13 @@ exports.getAllMySessions = catchAsync(async (req, res, next) => {
 // record a note on a session
 exports.addSessionNotes = catchAsync(async (req, res, next) => {
   const { sessionID } = req.params
-  const { note_text } = req.body
-  if (!note_text) return next(new BadRequest('Pleases provide the note_text!'))
+  const { noteText } = req.body
+  if (!noteText) return next(new BadRequest('Pleases provide the noteText!'))
 
   const session = await Session.updateOne(
     { _id: sessionID, therapist: req.user._id },
     {
-      $addToSet: { notes: { note_text } },
+      $addToSet: { notes: { noteText } },
     },
     { new: true }
   )
@@ -59,3 +59,7 @@ exports.getTherapist = factoryController.getOne(Therapist, [
 exports.updateTherapist = factoryController.updateOne(Therapist)
 exports.deleteTherapist = factoryController.deleteOne(Therapist)
 exports.addTherapist = factoryController.createOne(Therapist)
+
+// Therapist.updateMany({}, { practicing_from: new Date('2018-11-15') }).then(
+//   (res) => console.log(res)
+// )

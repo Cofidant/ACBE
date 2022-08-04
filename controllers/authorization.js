@@ -43,7 +43,7 @@ const updatePassword = catchAsync(async (req, res, next) => {
   const { oldpassword, password } = req.body
   if (!oldpassword || !password)
     return next(new BadRequest('Please provide oldpassword and password'))
-  const user = await User.findById(req.user._id)
+  const user = await User.findById(req.user._id).select('+password')
   const passCorrect = await user.comparePassword(oldpassword)
   if (!passCorrect) return next(new UnAuthenticated('Invalid Credentials'))
 

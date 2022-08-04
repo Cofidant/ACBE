@@ -1,5 +1,5 @@
-const express = require('express');
-const { updatePassword } = require('../controllers/authorization');
+const express = require('express')
+const { updatePassword } = require('../controllers/authorization')
 const {
   getTherapist,
   getAllTherapists,
@@ -15,8 +15,10 @@ const {
   authenticationMiddleware,
   restrictRouteTo,
 } = require('../middlewares/authentication')
+const chatRouter = require('./chatRoutes')
 
 const therapistRouter = express.Router()
+
 //all routes are protected
 therapistRouter.use(authenticationMiddleware)
 
@@ -40,6 +42,7 @@ therapistRouter.use(restrictRouteTo('therapist'))
 
 therapistRouter.get('/me/sessions', getAllMySessions)
 therapistRouter.route('/me/sessions/:sessionID/notes').post(addSessionNotes)
+therapistRouter.use('/me/sessions/:sessionID/chats/', chatRouter)
 // .get(getSessionNotes)
 
 module.exports = therapistRouter

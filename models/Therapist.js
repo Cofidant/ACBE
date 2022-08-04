@@ -89,7 +89,7 @@ therapistSchema.virtual('averageRating').get(function () {
 })
 
 therapistSchema.virtual('years_of_experience').get(function () {
-  const years = this.practicing_from.getFullYear() - new Date().getFullYear()
+  const years = new Date().getFullYear() - this.practicing_from?.getFullYear()
   return years
 })
 

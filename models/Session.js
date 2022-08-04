@@ -20,7 +20,8 @@ const appointmentSchema = mongoose.Schema({
 // Notes or Observations taken by Therapist
 const noteSchema = mongoose.Schema(
   {
-    note_text: String,
+    noteText: String,
+    _id: false,
   },
   { timestamps: true }
 )
@@ -29,12 +30,12 @@ const sessionSchema = mongoose.Schema(
   {
     therapist: {
       type: mongoose.Schema.ObjectId,
-      ref: 'Therapist',
+      ref: 'User',
       required: [true, 'Please provide the Therapist id'],
     },
     patient: {
       type: mongoose.Schema.ObjectId,
-      ref: 'Patient',
+      ref: 'User',
       required: [true, 'Please provide the patient id'],
     },
     subscribedDate: {
@@ -57,6 +58,14 @@ const sessionSchema = mongoose.Schema(
 
 sessionSchema.virtual('expired').get(function () {
   return Date.now() >= this.expiryDate
+})
+
+sessionSchema.pre(/^find/, function (next) {
+  this.populate('therapist', 'name image username').populate(
+    'patient',
+    'username image'
+  )
+  next()
 })
 
 const Session = mongoose.model('Session', sessionSchema)

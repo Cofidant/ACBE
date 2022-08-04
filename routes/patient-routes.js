@@ -1,19 +1,52 @@
-const { updatePassword } = require('../controllers/authorization');
-const { authenticationMiddleware } = require("../middlewares/authentication");
-const { getTherapy, getMe, getSessions, getSession, endSession, selectTherapy, createStory, getStory, deleteStory, getMyStories } = require("../controllers/patient-controller");
+const { updatePassword } = require('../controllers/authorization')
+const {
+  authenticationMiddleware,
+  restrictRouteTo,
+} = require('../middlewares/authentication')
+const {
+  getTherapy,
+  getMe,
+  getSessions,
+  getSession,
+  endSession,
+  selectTherapy,
+  getAllPatients,
+  getPatient,
+  deletePatient,
+} = require('../controllers/patient-controller')
+const storiesRouter = require('./storiesRoutes')
 
-const patientRouter = require("express").Router();
+const patientRouter = require('express').Router()
 
-patientRouter.patch("/update-password",authenticationMiddleware, updatePassword);
-patientRouter.post("/get-therapy",authenticationMiddleware,getTherapy);
-patientRouter.post("/therapy/select",authenticationMiddleware,selectTherapy);
-patientRouter.get("/me",authenticationMiddleware,getMe);
-patientRouter.get("/sessions",authenticationMiddleware,getSessions);
-patientRouter.get("/session/:id",authenticationMiddleware,getSession);
-patientRouter.delete("/session/:id",authenticationMiddleware,endSession);
-patientRouter.post("/new-story",authenticationMiddleware,createStory);
-patientRouter.get("/story/:id",authenticationMiddleware,getStory);
-patientRouter.delete("/story/:id",authenticationMiddleware,deleteStory);
-patientRouter.get("/my-stories",authenticationMiddleware,getMyStories);
+// All routes are protected
+patientRouter.use(authenticationMiddleware)
 
-module.exports = patientRouter;
+// redirect stories to stories router
+patientRouter.use(
+  '/stories',
+  (req, res, next) => {
+    // assign necessary filter
+    req.filter = { patient: req.user._id }
+    req.body.patient = req.user._id
+    next()
+  },
+  storiesRouter
+)
+
+patientRouter.route('/').get(restrictRouteTo('admin'), getAllPatients)
+
+patientRouter.use(restrictRouteTo('patient'))
+patientRouter.get('/me', getMe)
+patientRouter.patch('/update-password', updatePassword)
+patientRouter.post('/get-therapy', getTherapy)
+patientRouter.get('/sessions', getSessions)
+
+patientRouter
+  .route('/:patientID')
+  .get(restrictRouteTo('admin'), getPatient)
+  .delete(restrictRouteTo('admin'), deletePatient)
+
+patientRouter.post('/therapy/select', selectTherapy)
+patientRouter.route('/session/:id').get(getSession).delete(endSession)
+
+module.exports = patientRouter

@@ -1,22 +1,36 @@
-const mongoose = require("mongoose");
-const User = require("./User");
+const mongoose = require('mongoose')
+const User = require('./User')
 
-const storySchema = mongoose.Schema({
-    preview:{
-        type:String,
-        required:[true,"please provide a previw of your story"]
+const storySchema = mongoose.Schema(
+  {
+    patient: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+      required: [true, 'please provide your id'],
     },
-    body:{
-        type:String,
-        required:[true,"please type in your story body"]
+    preview: {
+      type: String,
+      required: [true, 'please provide a previw of your story'],
     },
-    comments:{
-        type:Array,
-        default:[]
-    }
-},{
-    timestamps:true
-}
+    body: {
+      type: String,
+      required: [true, 'please type in your story body'],
+    },
+    coverImg: String,
+    comments: {
+      type: Array,
+      default: [],
+    },
+  },
+  {
+    timestamps: true,
+  }
 )
 
-const Story = mongoose.model("story",storySchema);
+storySchema.pre(/^find/, function (next) {
+  this.populate('patient', 'username image')
+  next()
+})
+
+const Story = mongoose.model('Story', storySchema)
+module.exports = Story

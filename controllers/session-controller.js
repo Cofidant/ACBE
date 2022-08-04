@@ -25,21 +25,32 @@ module.exports.createTherapySession = async (
   patientID,
   therapistID
 ) => {
-  if (!duration) {
-    res.status(400).json('please select duration')
+  try {
+    const session = await Session.create({
+      duration,
+      EndDate: getEndDate(duration),
+      patientID,
+      therapistID,
+    })
+    await updateSessions(patientID, session._id)
+    await updateSessions(therapistID, session._id)
+    return session
+  } catch (error) {
+    console.log(error)
+    return false
   }
-  const session = await Session.create({
-    duration,
-    EndDate: getEndDate(duration),
-    patientID,
-    therapistID,
-  })
-  await updateSessions(session.patientID, session._id)
-  await updateSessions(session.therapistID, session._id)
-  return
 }
-
 module.exports.endTherapySession = async (id) => {
   const modified = await findByIdAndDelete(id)
   return modified
 }
+
+// 62e589f011986b779bc46f05 62e59426d86f719bb562f34c
+// Session.create({
+//   therapist: '62e59426d86f719bb562f34c',
+//   patient: '62e589f011986b779bc46f05',
+//   subscribedDate: Date.now(),
+//   expiryDate: Date.now() + 60 * 24 * 60 * 60 * 60,
+// })
+//   .then((res) => console.log(res))
+//   .catch((err) => console.log(err.message))
