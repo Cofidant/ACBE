@@ -38,6 +38,10 @@ const sessionSchema = mongoose.Schema(
       ref: 'User',
       required: [true, 'Please provide the patient id'],
     },
+    subscriptionPlan: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'SubscriptionPlan',
+    },
     subscribedDate: {
       type: Date,
       required: [true, 'Please provide the date subscribed'],
@@ -48,6 +52,14 @@ const sessionSchema = mongoose.Schema(
     },
     appointments: [appointmentSchema],
     notes: [noteSchema],
+    paymentStatus: {
+      type: String,
+      default: 'pending',
+      enum: {
+        values: ['pending', 'paid'],
+        message: 'paymentStatus is either paid or pending',
+      },
+    },
   },
   {
     timestamps: true,
@@ -61,10 +73,9 @@ sessionSchema.virtual('expired').get(function () {
 })
 
 sessionSchema.pre(/^find/, function (next) {
-  this.populate('therapist', 'name image username').populate(
-    'patient',
-    'username image'
-  )
+  this.populate('therapist', 'name image username')
+    .populate('patient', 'username image')
+    .sort('-createdAt')
   next()
 })
 

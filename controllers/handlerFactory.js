@@ -63,3 +63,15 @@ exports.createOne = (Model) =>
     const newDoc = await Model.create(req.body)
     res.status(201).json({ status: 'success', data: newDoc })
   })
+
+exports.updateMe = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const data = req.body
+
+    if (data.hasOwnProperty('password'))
+      return next(new BadRequest('You cant update password from here!'))
+    const updated = await Model.findByIdAndUpdate(req.user._id, data, {
+      new: true,
+    })
+    res.status(StatusCodes.OK).json({ status: 'success', data: updated })
+  })

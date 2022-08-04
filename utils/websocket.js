@@ -12,10 +12,14 @@ class WebSockets {
         userId: userId,
       })
     })
+    client.on('new-message', (message) => {
+      console.log('new Message >>>>', message)
+    })
     // subscribe person to chat & other user as well
     client.on('subscribe', (room, otherUserId = '') => {
       this.subscribeOtherUser(room, otherUserId)
       client.join(room)
+      console.log('sunscrideb to >>>', room)
     })
     // mute a chat room
     client.on('unsubscribe', (room) => {

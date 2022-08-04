@@ -9,7 +9,7 @@ const {
 
 router.post('/register', register)
 router.post('/login', login)
-router.post('/reset-password', resetPassword)
+router.patch('/reset-password/:token', resetPassword)
 router.post('/forgot-password', forgotPassword)
 
 module.exports = router

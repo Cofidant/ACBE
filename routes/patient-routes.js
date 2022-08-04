@@ -11,10 +11,14 @@ const {
   endSession,
   selectTherapy,
   getAllPatients,
+  updateMe,
   getPatient,
   deletePatient,
+  patientFilter,
 } = require('../controllers/patient-controller')
 const storiesRouter = require('./storiesRoutes')
+const chatRouter = require('./chatRoutes')
+const { getAllSessions } = require('../controllers/session-controller')
 
 const patientRouter = require('express').Router()
 
@@ -22,31 +26,22 @@ const patientRouter = require('express').Router()
 patientRouter.use(authenticationMiddleware)
 
 // redirect stories to stories router
-patientRouter.use(
-  '/stories',
-  (req, res, next) => {
-    // assign necessary filter
-    req.filter = { patient: req.user._id }
-    req.body.patient = req.user._id
-    next()
-  },
-  storiesRouter
-)
+patientRouter.use('/stories', patientFilter, storiesRouter)
 
 patientRouter.route('/').get(restrictRouteTo('admin'), getAllPatients)
 
 patientRouter.use(restrictRouteTo('patient'))
-patientRouter.get('/me', getMe)
+patientRouter.route('/me').get(getMe).patch(updateMe)
 patientRouter.patch('/update-password', updatePassword)
 patientRouter.post('/get-therapy', getTherapy)
-patientRouter.get('/sessions', getSessions)
+patientRouter.post('/select-therapist', selectTherapy)
+patientRouter.get('/sessions', patientFilter, getAllSessions)
 
 patientRouter
   .route('/:patientID')
   .get(restrictRouteTo('admin'), getPatient)
   .delete(restrictRouteTo('admin'), deletePatient)
 
-patientRouter.post('/therapy/select', selectTherapy)
-patientRouter.route('/session/:id').get(getSession).delete(endSession)
-
+patientRouter.route('/sessions/:id').get(getSession).delete(endSession)
+patientRouter.use('/me/sessions/:sessionID/chats/', chatRouter)
 module.exports = patientRouter

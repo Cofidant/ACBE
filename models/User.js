@@ -5,9 +5,9 @@ const crypto = require('crypto')
 
 const UserSchema = new mongoose.Schema(
   {
-    sessions:{
-      type:Array,
-      default:[]
+    sessions: {
+      type: Array,
+      default: [],
     },
     name: {
       type: String,
@@ -39,12 +39,13 @@ const UserSchema = new mongoose.Schema(
     passwordResetToken: String,
     resetTokenExpiresAt: Date,
   },
-  
+
   {
     timestamps: true,
     discriminatorKey: '_kind',
-  },
-
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 )
 
 UserSchema.pre('save', async function (next) {

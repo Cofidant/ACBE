@@ -10,21 +10,19 @@ patientSchema.virtual('stories', {
   ref: 'Story',
   localField: '_id',
   foreignField: 'patient',
-  sort: '-createdAt',
 })
 
 patientSchema.virtual('activeSessions', {
   ref: 'Session',
   localField: '_id',
   foreignField: 'patient',
-  sort: '-createdAt',
   match: {
     expiryDate: { $gte: Date.now() },
   },
 })
 
 patientSchema.pre('findOne', function (next) {
-  this.populate('activeSessions').populate('stories')
+  this.populate('activeSessions', '-notes').populate('stories')
   next()
 })
 const Patient = User.discriminator('patient', patientSchema)

@@ -10,6 +10,6 @@ const chatRouter = express.Router({ mergeParams: true })
 
 chatRouter.use(attachSessionFilter)
 chatRouter.route('/').post(postMessage).get(getAllSessionMessages)
-chatRouter.post('/mark-all-read', markAllMessagesRead)
+chatRouter.post('/read-all', markAllMessagesRead)
 
 module.exports = chatRouter

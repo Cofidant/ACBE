@@ -38,7 +38,7 @@ exports.postMessage = catchAsync(async (req, res, next) => {
     readByRecipients: [{ readByUserId: sender }],
   })
   // broad cast message
-  global.io.in(sessionID).serverSideEmit('new-message', newMessage)
+  global.io.in(sessionID).emit('new-message', newMessage)
   res.status(StatusCodes.CREATED).json({ status: 'success', data: newMessage })
 })
 

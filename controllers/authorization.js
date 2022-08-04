@@ -1,6 +1,11 @@
 const User = require('../models/User')
 const { StatusCodes } = require('http-status-codes')
-const { BadRequest, UnAuthenticated } = require('../errors')
+const {
+  BadRequest,
+  UnAuthenticated,
+  NotFound,
+  InternalServerError,
+} = require('../errors')
 const catchAsync = require('../utils/catchAsync')
 const Patient = require('../models/Patient')
 // const { promisify } = require('util')
@@ -12,11 +17,16 @@ const register = catchAsync(async (req, res, next) => {
   const user = await Patient.create({ ...req.body })
 
   // send welcome email
-  const url = `${req.protocol}://${req.get('host')}/me`
-  await new Email(newUser, url).sendWelcome()
+  // const url = `${req.protocol}://${req.get('host')}/me`
+  // await new Email(user, url).sendWelcome()
 
   const token = user.createJWT()
-  res.status(StatusCodes.CREATED).json({ user: { name: user.name }, token })
+  res.status(StatusCodes.CREATED).json({
+    status: 'success',
+    message: 'Registered Successfully',
+    user,
+    token,
+  })
 })
 
 const login = catchAsync(async (req, res) => {
@@ -36,7 +46,9 @@ const login = catchAsync(async (req, res) => {
     throw new UnAuthenticated('Invalid Credentials')
   }
   const token = user.createJWT()
-  res.status(StatusCodes.OK).json({ user: { name: user.name }, token })
+  res
+    .status(StatusCodes.OK)
+    .json({ status: 'success', message: 'login successfully', user, token })
 })
 
 const updatePassword = catchAsync(async (req, res, next) => {
@@ -50,7 +62,8 @@ const updatePassword = catchAsync(async (req, res, next) => {
   user.password = password
   await user.save()
 
-  res.status(StatusCodes.OK).json({ status: 'success', data: user })
+  const token = user.createJWT()
+  res.status(StatusCodes.OK).json({ status: 'success', data: user, token })
 })
 
 const forgotPassword = catchAsync(async (req, res, next) => {
@@ -59,13 +72,13 @@ const forgotPassword = catchAsync(async (req, res, next) => {
   }
   const user = await User.findOne({ email: req.body.email })
   if (!user) {
-    throw new MyError('User does not exist!!', 404)
+    throw new NotFound('User does not exist!!')
   }
   const resetToken = user.getPasswordResetToken()
   await user.save({ validateBeforeSave: false })
   const resetURL = `${req.protocol}://${req.get(
     'host'
-  )}/api/v1/users/resetpassword/${resetToken}`
+  )}/api/v1/auth/reset-password/${resetToken}`
   try {
     await new Email(user, resetURL).sendPasswordReset()
     res.status(200).json({
@@ -77,7 +90,7 @@ const forgotPassword = catchAsync(async (req, res, next) => {
     user.resetTokenExpiresAt = undefined
     await user.save({ validateBeforeSave: false })
     return next(
-      new BadRequest(
+      new InternalServerError(
         'There is an error sending the email, please try again later!'
       )
     )
@@ -105,7 +118,14 @@ const resetPassword = catchAsync(async (req, res, next) => {
   await user.save()
 
   const token = user.createJWT()
-  res.status(StatusCodes.CREATED).json({ user: { name: user.name }, token })
+  res
+    .status(StatusCodes.CREATED)
+    .json({
+      status: 'success',
+      message: 'password reset successfully',
+      user,
+      token,
+    })
 })
 
 module.exports = {

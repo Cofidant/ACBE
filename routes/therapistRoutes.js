@@ -28,6 +28,7 @@ therapistRouter
   .get(restrictRouteTo('admin'), getAllTherapists)
   .post(restrictRouteTo('admin'), addTherapist)
 
+therapistRouter.use(restrictRouteTo('therapist'))
 therapistRouter.route('/me').get(getMe).patch(updateMe)
 therapistRouter.patch('/update-password', updatePassword)
 
@@ -36,9 +37,6 @@ therapistRouter
   .patch(restrictRouteTo('admin'), updateTherapist)
   .delete(restrictRouteTo('admin'), deleteTherapist)
   .get(getTherapist)
-
-// All routes below are specific to a therapist
-therapistRouter.use(restrictRouteTo('therapist'))
 
 therapistRouter.get('/me/sessions', getAllMySessions)
 therapistRouter.route('/me/sessions/:sessionID/notes').post(addSessionNotes)

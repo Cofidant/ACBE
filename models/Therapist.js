@@ -1,65 +1,76 @@
 const mongoose = require('mongoose')
 const User = require('./User')
 
-const therapistSchema = mongoose.Schema(
-  {
-    phone: {
-      type: String,
-    },
-    gender: {
-      type: String,
-    },
-    qualifictaion: [
-      {
-        qualifictaion_name: String,
-        institute_name: String,
-        date_acquired: Date,
-      },
-    ],
-    practicing_from: {
-      type: Date, //Starting Date of Practice can be used to determine years of experience
-      default: Date(),
-    },
-    about: {
-      type: String,
-    },
-    specialization: [String],
-    state: {
-      type: String,
-    },
-    lga: String,
-    agePreference: {
-      upper: {
-        type: Number,
-        default: 100,
-      },
-      lower: {
-        type: Number,
-        default: 0,
-      },
-    },
-    sexPreference: {
-      type: String,
-    },
-    statusPreference: {
-      type: String,
-    },
-    locationPreference: {
-      type: String,
-    },
-    religionPreference: {
-      type: String,
-    },
-    image: {
-      type: String,
-      default: 'default.jpg',
+const therapistSchema = mongoose.Schema({
+  phone: {
+    type: String,
+  },
+  gender: {
+    type: String,
+    enum: {
+      values: [
+        'MALE',
+        'FEMALE',
+        'OTHERS',
+        'Male',
+        'Female',
+        'Others',
+        'male',
+        'female',
+        'others',
+      ],
+      message: 'gender is either MALE, FEMALE or OTHERS',
     },
   },
-  {
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-  }
-)
+  qualifictaion: [
+    {
+      qualifictaion_name: String,
+      institute_name: String,
+      date_acquired: Date,
+    },
+  ],
+  practicing_from: {
+    type: Date, //Starting Date of Practice can be used to determine years of experience
+    default: Date(),
+  },
+  about: {
+    type: String,
+    default: function () {
+      return `Hi, I'am Dr. ${this.name}`
+    },
+  },
+  specialization: [String],
+  state: {
+    type: String,
+  },
+  lga: String,
+  agePreference: {
+    upper: {
+      type: Number,
+      default: 100,
+    },
+    lower: {
+      type: Number,
+      default: 0,
+    },
+  },
+  sexPreference: {
+    type: String,
+  },
+  statusPreference: {
+    type: String,
+  },
+  locationPreference: {
+    type: String,
+  },
+  religionPreference: {
+    type: String,
+  },
+  image: {
+    type: String,
+    default: 'default.jpg',
+  },
+})
 
 // Virtual Fields
 

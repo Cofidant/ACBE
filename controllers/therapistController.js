@@ -11,15 +11,6 @@ exports.getMe = catchAsync(async (req, res, next) => {
   res.status(StatusCodes.OK).json({ status: 'success', data: me })
 })
 
-exports.updateMe = catchAsync(async (req, res, next) => {
-  const data = req.body
-
-  if (data.hasOwnProperty('password'))
-    return next(new BadRequest('You cant update password from here!'))
-  const updated = Therapist.findByIdAndUpdate(req.user._id, data)
-  res.status(StatusCodes.OK).json({ status: 'success', data: updated })
-})
-
 // get all sessions of active therapist
 exports.getAllMySessions = catchAsync(async (req, res, next) => {
   const therapist = req.user._id
@@ -59,7 +50,13 @@ exports.getTherapist = factoryController.getOne(Therapist, [
 exports.updateTherapist = factoryController.updateOne(Therapist)
 exports.deleteTherapist = factoryController.deleteOne(Therapist)
 exports.addTherapist = factoryController.createOne(Therapist)
+exports.updateMe = factoryController.updateMe(Therapist)
 
-// Therapist.updateMany({}, { practicing_from: new Date('2018-11-15') }).then(
-//   (res) => console.log(res)
-// )
+// Therapist.updateMany(
+//   {},
+//   {
+//     $addToSet: {
+//       specialization: { $each: ['Dating', 'Marriage', 'Depression'] },
+//     },
+//   }
+// ).then((res) => console.log(res))

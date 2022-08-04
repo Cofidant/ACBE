@@ -1,5 +1,5 @@
 const Patient = require('../models/Patient')
-const Therapist = require('../models/User')
+const Therapist = require('../models/Therapist')
 const catchAsync = require('../utils/catchAsync')
 const {
   createTherapySession,
@@ -9,12 +9,13 @@ const { StatusCodes } = require('http-status-codes')
 const Session = require('../models/Session')
 const factoryController = require('./handlerFactory')
 const { BadRequest } = require('../errors')
+const { kMaxLength } = require('buffer')
 
 // create a search weight Function
 const getTherapistSuitabilty = (therapist, profile) => {
-  const suitability = 0
+  let suitability = 0
   // specialization has highest weight
-  if (therapist.specializations.includes(profile.problem)) suitability += 15
+  if (therapist.specialization?.includes(profile.problem)) suitability += 15
   if (therapist.sexPreference == profile.gender) suitability += 2
   if (therapist.isWithinAgeRange(profile.age)) suitability += 2
   if (therapist.religionPreference == profile.religion) suitability += 2
@@ -29,7 +30,10 @@ const getTherapistSuitabilty = (therapist, profile) => {
 //find a therapist based on preference and standard max-activeSession
 const fetchTherapist = async (profile, maxActiveSession) => {
   //grab all therapists
-  let therapists = await Therapist.find().populate('activeSessions')
+  let therapists = await Therapist.find().populate(
+    'activeSessions',
+    '_id appointments'
+  )
 
   //  filter out unavailable
   therapists = therapists.filter((therapist) => {
@@ -45,22 +49,30 @@ const fetchTherapist = async (profile, maxActiveSession) => {
   // return a max of 10
   if (therapists.length > 10) therapists = therapists.slice(0, 10)
 
-  return therapists
+  return therapists.map((th) => ({
+    id: th._id,
+    _id: th._id,
+    name: th.name,
+    about: th.about,
+    rating: th.averageRating,
+    work_experience: `${th.years_of_experience} Years`,
+    image: th.image,
+  }))
 }
 
 module.exports.getMe = catchAsync(async (req, res, next) => {
-  const id = req.user.id
+  const id = req.user._id
   const patient = await Patient.findById(id)
-  if (!patient) {
-    res.status(StatusCodes.NOT_FOUND).json('user does not exist')
-  }
+  res.status(StatusCodes.OK).json({ status: 'success', data: patient })
 })
+
+exports.updateMe = factoryController.updateMe(Patient)
 
 module.exports.getTherapy = catchAsync(async (req, res, next) => {
   //get available therapist
-  const potentialTherapists = fetchTherapist(
+  const potentialTherapists = await fetchTherapist(
     req.body.profile,
-    process.env.MAXSESSION
+    process.env.MAXSESSION || 5
   )
   res.status(StatusCodes.OK).json({
     status: 'success',
@@ -94,24 +106,26 @@ module.exports.endSession = async (req, res) => {
   const modified = await endTherapySession(req.params.id)
   res.status(StatusCodes.OK).json(modified)
 }
-//req.body includes selected therapists id, contract period (duration)
+//req.body includes selected therapists id, contract period (subscriptionPlan)
+// This will be fully Implemented when payment gateway is decided
 module.exports.selectTherapy = catchAsync(async (req, res, next) => {
-  const { therapistID, duration } = req.body
+  const { therapistID, subscriptionPlan } = req.body
 
   const therapist = await Therapist.findById(therapistID)
   if (!therapist) {
     return next(new BadRequest('Invalid therapistID'))
   }
-  if (!duration) return next(new BadRequest('please provide the duration'))
+  if (!subscriptionPlan)
+    return next(new BadRequest('please provide the subscriptionPlan'))
 
-  const newSession = await createTherapySession(
-    duration,
-    req.user._id,
-    therapist._id
-  )
+  // const newSession = await createTherapySession(
+  //   subscriptionPlan,
+  //   req.user._id,
+  //   therapist._id
+  // )
 
-  if (!newSession)
-    res.status(500).json({ status: 'error', message: 'Something went wrong!' })
+  // if (!newSession)
+  //   res.status(500).json({ status: 'error', message: 'Something went wrong!' })
 
   res.status(StatusCodes.CREATED).json({
     status: 'success',
@@ -120,6 +134,12 @@ module.exports.selectTherapy = catchAsync(async (req, res, next) => {
   })
 })
 
+exports.patientFilter = (req, res, next) => {
+  req.filter = { patient: req.user._id }
+  req.query = { fields: '-notes' }
+  req.body.patient = req.user._id
+  next()
+}
 exports.getAllPatients = factoryController.getAll(Patient)
 exports.getPatient = factoryController.getOne(Patient)
 exports.deletePatient = factoryController.deleteOne(Patient)
