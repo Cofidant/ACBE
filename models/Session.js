@@ -38,20 +38,21 @@ const sessionSchema = mongoose.Schema(
       ref: 'User',
       required: [true, 'Please provide the patient id'],
     },
+    appointments: [appointmentSchema],
+    notes: [noteSchema],
     subscriptionPlan: {
       type: mongoose.Schema.ObjectId,
       ref: 'SubscriptionPlan',
     },
     subscribedDate: {
       type: Date,
-      required: [true, 'Please provide the date subscribed'],
+      default: Date.now(),
     },
     expiryDate: {
       type: Date,
-      required: [true, 'Please provide the expiry date'],
+      default: Date.now(),
     },
-    appointments: [appointmentSchema],
-    notes: [noteSchema],
+    paymentRef: String,
     paymentStatus: {
       type: String,
       default: 'pending',

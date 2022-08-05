@@ -1,15 +1,11 @@
 const Patient = require('../models/Patient')
 const Therapist = require('../models/Therapist')
 const catchAsync = require('../utils/catchAsync')
-const {
-  createTherapySession,
-  endTherapySession,
-} = require('./session-controller')
 const { StatusCodes } = require('http-status-codes')
 const Session = require('../models/Session')
 const factoryController = require('./handlerFactory')
 const { BadRequest } = require('../errors')
-const { kMaxLength } = require('buffer')
+const SubscriptionPlan = require('../models/SubscriptionPlan')
 
 // create a search weight Function
 const getTherapistSuitabilty = (therapist, profile) => {
@@ -72,7 +68,7 @@ module.exports.getTherapy = catchAsync(async (req, res, next) => {
   //get available therapist
   const potentialTherapists = await fetchTherapist(
     req.body.profile,
-    process.env.MAXSESSION || 5
+    process.env.MAXSESSION || 10
   )
   res.status(StatusCodes.OK).json({
     status: 'success',
@@ -82,50 +78,42 @@ module.exports.getTherapy = catchAsync(async (req, res, next) => {
 })
 
 module.exports.getSessions = async (req, res) => {
-  const sessions = []
-  const { id } = req.user._id
-  const user = await Patient.findById(id)
-  if (!user) {
-    res.status(StatusCodes.NOT_FOUND).json('user does not exist')
-  }
-  const sessionIDs = user.sessions
-  await sessionIDs.map((session) => {
-    Patient.findById(session).then((session) => {
-      sessions.push(session)
-    })
-  })
-  res.status(StatusCodes.OK.json(sessions))
-}
+  const id = req.user._id
+  const sessions = await Session.find({ patient: id })
+    .select('-notes')
+    .sort('-expiryDate -createdAt -paymentStatus')
 
-module.exports.getSession = async (req, res) => {
-  const session = await Session.findById(req.params.id)
-  res.status(StatusCodes.OK).json(session)
+  res.status(
+    StatusCodes.OK.json({
+      status: 'success',
+      result: sessions.length,
+      data: sessions,
+    })
+  )
 }
 
 module.exports.endSession = async (req, res) => {
-  const modified = await endTherapySession(req.params.id)
-  res.status(StatusCodes.OK).json(modified)
+  // const modified = await endTherapySession(req.params.id)
+  // res.status(StatusCodes.OK).json(modified)
 }
 //req.body includes selected therapists id, contract period (subscriptionPlan)
-// This will be fully Implemented when payment gateway is decided
 module.exports.selectTherapy = catchAsync(async (req, res, next) => {
   const { therapistID, subscriptionPlan } = req.body
 
   const therapist = await Therapist.findById(therapistID)
-  if (!therapist) {
+  const subPlan = await SubscriptionPlan.findById(subscriptionPlan)
+  if (!therapist || !subPlan) {
     return next(new BadRequest('Invalid therapistID'))
   }
-  if (!subscriptionPlan)
-    return next(new BadRequest('please provide the subscriptionPlan'))
 
-  // const newSession = await createTherapySession(
-  //   subscriptionPlan,
-  //   req.user._id,
-  //   therapist._id
-  // )
-
-  // if (!newSession)
-  //   res.status(500).json({ status: 'error', message: 'Something went wrong!' })
+  // Create The Session with paymentStatus pending
+  const newSession = await Session.create({
+    patient: req.user._id,
+    therapist: therapist._id,
+    subscriptionPlan: subPlan._id,
+    paymentStatus: 'pending',
+    paymentRef: '',
+  })
 
   res.status(StatusCodes.CREATED).json({
     status: 'success',

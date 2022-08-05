@@ -10,6 +10,7 @@ const subsPlanSchema = mongoose.Schema({
   title: {
     // Name of the Plan
     type: String,
+    unique: [true, 'Plan already exist'],
     required: [true, 'Please provide The title of the plan'],
   },
   price: {

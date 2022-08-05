@@ -24,6 +24,16 @@ const UserSchema = new mongoose.Schema(
       ],
       unique: [true, 'Email already Exist'],
     },
+    bookmarks: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Post',
+      },
+    ],
+    noOfPosts: {
+      type: Number,
+      default: 0,
+    },
 
     password: {
       type: String,

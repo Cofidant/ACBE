@@ -6,9 +6,6 @@ const {
 const {
   getTherapy,
   getMe,
-  getSessions,
-  getSession,
-  endSession,
   selectTherapy,
   getAllPatients,
   updateMe,
@@ -19,6 +16,7 @@ const {
 const storiesRouter = require('./storiesRoutes')
 const chatRouter = require('./chatRoutes')
 const { getAllSessions } = require('../controllers/session-controller')
+const { paystackPay } = require('../controllers/paymentController')
 
 const patientRouter = require('express').Router()
 
@@ -42,6 +40,5 @@ patientRouter
   .get(restrictRouteTo('admin'), getPatient)
   .delete(restrictRouteTo('admin'), deletePatient)
 
-patientRouter.route('/sessions/:id').get(getSession).delete(endSession)
 patientRouter.use('/me/sessions/:sessionID/chats/', chatRouter)
 module.exports = patientRouter

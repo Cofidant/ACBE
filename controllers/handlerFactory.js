@@ -75,3 +75,42 @@ exports.updateMe = (Model) =>
     })
     res.status(StatusCodes.OK).json({ status: 'success', data: updated })
   })
+
+exports.allowEdits = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const id = Model.modelName.toLowerCase() + 'ID'
+    const doc = await Model.findById(req.params[id])
+    if (doc.authorID != req.user.id && !(req.user.clearance == 'admin')) {
+      throw new MyError(
+        `You can only ${req.method.toLowerCase()} ${Model.modelName.toLowerCase()} you created`,
+        403
+      )
+    }
+    //you cant change author or publish post via this route
+    ;['authorID', 'published'].forEach((field) => {
+      if (req.body[field]) delete req.body[field]
+    })
+
+    next()
+  })
+exports.like = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const id = Model.modelName.toLowerCase() + 'ID'
+    let method = 'post'
+    let liked = await Model.updateOne(
+      { _id: req.params[id], claps: { $nin: [req.user.id] } },
+      { $addToSet: { claps: req.user.id } }
+    )
+    if (liked.nModified == 0 && req.method == 'DELETE') {
+      liked = await Model.updateOne(
+        { _id: req.params[id], claps: { $in: req.user.id } },
+        { $pull: { claps: req.user.id } }
+      )
+      method = 'delet'
+    }
+    res.status(200).json({
+      status: 'success',
+      message: `Like ${method}ed successfully`,
+      liked,
+    })
+  })
