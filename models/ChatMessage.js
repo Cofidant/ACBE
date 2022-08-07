@@ -52,7 +52,7 @@ const chatMessageSchema = new mongoose.Schema(
 )
 
 chatMessageSchema.pre(/^find/, function (next) {
-  this.populate('postedBy', 'username image').sort('-createdAt')
+  this.populate('postedBy', 'username image name').sort('-createdAt')
   next()
 })
 

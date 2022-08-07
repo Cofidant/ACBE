@@ -96,6 +96,7 @@ module.exports.endSession = async (req, res) => {
   // const modified = await endTherapySession(req.params.id)
   // res.status(StatusCodes.OK).json(modified)
 }
+
 //req.body includes selected therapists id, contract period (subscriptionPlan)
 module.exports.selectTherapy = catchAsync(async (req, res, next) => {
   const { therapistID, subscriptionPlan } = req.body
@@ -120,6 +121,30 @@ module.exports.selectTherapy = catchAsync(async (req, res, next) => {
     message: 'session created successfully',
     data: newSession,
   })
+})
+
+exports.bookAppointment = catchAsync(async (req, res, next) => {
+  const { sessionID } = req.params
+  // find the right session
+  const session = await Session.findOne({
+    _id: sessionID,
+    patient: req.user._id,
+    paymentStatus: 'paid',
+    expiryDate: { $gt: Date.now() },
+  })
+  if (!session)
+    return next(new BadRequest('Invalid session or session expired'))
+
+  const start_time = new Date(req.body.startTime)
+  // confirm if no overlap in active sessions of therapist
+
+  // create an appointment and add to session
+
+  // send email notification to therapist
+
+  res
+    .status(StatusCodes.CREATED)
+    .json({ status: 'success', message: 'appointment requested' })
 })
 
 exports.patientFilter = (req, res, next) => {

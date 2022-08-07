@@ -12,6 +12,7 @@ const {
   getPatient,
   deletePatient,
   patientFilter,
+  bookAppointment,
 } = require('../controllers/patient-controller')
 const storiesRouter = require('./storiesRoutes')
 const chatRouter = require('./chatRoutes')
@@ -40,5 +41,9 @@ patientRouter
   .get(restrictRouteTo('admin'), getPatient)
   .delete(restrictRouteTo('admin'), deletePatient)
 
+patientRouter.post('/me/subscribe', paystackPay)
+patientRouter
+  .route('/me/sessions/:sessionID/appointments')
+  .post(bookAppointment)
 patientRouter.use('/me/sessions/:sessionID/chats/', chatRouter)
 module.exports = patientRouter

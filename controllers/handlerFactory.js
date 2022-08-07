@@ -68,8 +68,8 @@ exports.updateMe = (Model) =>
   catchAsync(async (req, res, next) => {
     const data = req.body
 
-    if (data.hasOwnProperty('password'))
-      return next(new BadRequest('You cant update password from here!'))
+    if (data.hasOwnProperty('password') || data.hasOwnProperty('_kind'))
+      return next(new BadRequest('Unauthorized field included!'))
     const updated = await Model.findByIdAndUpdate(req.user._id, data, {
       new: true,
     })

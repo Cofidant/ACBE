@@ -39,13 +39,15 @@ exports.authenticationMiddleware = async (req, res, next) => {
 
 exports.restrictRouteTo = (...clearance) => {
   return (req, res, next) => {
-    // Is Admin has all access and doest have _kind property
+    if (!req.user)
+      throw new UnAuthenticated('Please Log in to access this route!')
     if (req.user._kind)
       if (!clearance.includes(req.user._kind)) {
         throw new UnAuthenticated(
           'Ooops you are not cleared to perform this action'
         )
       }
+    // Else Is Admin has all access and doest have _kind property
     next()
   }
 }
