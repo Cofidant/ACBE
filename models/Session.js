@@ -61,6 +61,16 @@ const sessionSchema = mongoose.Schema(
         message: 'paymentStatus is either paid or pending',
       },
     },
+    messages:{
+      type: Array,
+      default:[]
+    },
+    patient_socket_id:{
+      type: String,
+    },
+    therapist_socket_id:{
+      type: String
+    }
   },
   {
     timestamps: true,
