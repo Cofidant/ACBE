@@ -1,0 +1,50 @@
+[
+  {
+    "title": "Why Computer Science is inevitable in the modern world",
+    "summary": "The resulting ripple effects of the advancements in computing is vividly seen in our daily life and humanity are becoming more and more dependent",
+    "tags": ["Computing"],
+    "coverImg": "computer.jpg",
+    "authorID": "62e5827ec33ef2cb0f2f92cd",
+    "content": "The significance of computer in the life of a contemporary human beign in the 21st century can not be over emphasized. this piece tries to show how impossible it is to escape from the clutches of automations and luxury derived from the over reliance of us to the computng world."
+  },
+  {
+    "title": "Applying Themes to a Document",
+    "summary": "Click Insert and then specifiy the settings",
+    "tags": ["Ms word", "Learning"],
+    "coverImg": "microsoft.jpg",
+    "authorID": "62e5827ec33ef2cb0f2f92cd",
+    "content": "Click Insert and then choose the elements you want from the different galleries. Themes and styles also help keep your document coordinated. When you click Design and choose a new Theme, the pictures, charts, and SmartArt graphics change to match your new theme. When you apply styles, your headings change to match the new theme. Save time in Word with new buttons that show up where you need them."
+  },
+  {
+    "title": "Formatting a picture in Ms Word",
+    "summary": "Click the picture and apply your settings",
+    "tags": ["Ms word", "Learning"],
+    "coverImg": "microsoft.jpg",
+    "authorID": "62e5827ec33ef2cb0f2f92cd",
+    "content": "To change the way a picture fits in your document, click it and a button for layout options appears next to it. When you work on a table, click where you want to add a row or a column, and then click the plus sign. Reading is easier, too, in the new Reading view. You can collapse parts of the document and focus on the text you want. If you need to stop reading before you reach the end, Word remembers where you left off - even on another device."
+  },
+  {
+    "title": "Inserting a Video in a doc",
+    "summary": "A good way to say a lot is using videos",
+    "tags": ["Ms word"],
+    "coverImg": "microsoft.jpg",
+    "authorID": "62e5827ec33ef2cb0f2f92cd",
+    "content": "Video provides a powerful way to help you prove your point. When you click Online Video, you can paste in the embed code for the video you want to add. You can also type a keyword to search online for the video that best fits your document. To make your document look professionally produced, Word provides header, footer, cover page, and text box designs that complement each other. For example, you can add a matching cover page, header, and sidebar."
+  },
+  {
+    "tags": ["Science", "Security", "Nuclear Physics"],
+    "title": "The Role of Physics in mitigating Insecurities in Nigeria",
+    "authorID": "62e5827ec33ef2cb0f2f92cd",
+    "summary": "There is a large misrepresentaion of physisists (In particular nuclear physisists) around the world with the mild thinking that physics as a scientific domain only works to destroy the world, lets clear that by outlying the bright side.",
+    "coverImg": "an-example.jpg",
+    "content": "Understanding the genesis of our topic of discussion will require that i took a detour aroung the caption to provide some definitions of terms within. Physics as a concept refers to a discipline in the field of science concern with the study of matter, energy anfd the interplay between the two. when the world is viewed as a gigantic game of chess the the undelying rules governing the game are the fundamental laws of physics."
+  },
+  {
+    "tags": ["Lifestyle"],
+    "title": "Industrial Training at NIS",
+    "summary": "If you think your IT is Interesting wait till you come to NIS.",
+    "coverImg": "NIS-LOGO.jpg",
+    "content": "Imagine the kind of thrill you experience when you the power to decide if the office of vc can browse and at what speed, well that is the just the tip of the icebag you enjoyed at NIS. NIS stands or NETWORK INFRASTRUCTURE AND SECURITY UNIT its a unit under the Institute of Computing and Information and Communication Technology.",
+    "authorID": "62e5827ec33ef2cb0f2f92cd"
+  }
+]

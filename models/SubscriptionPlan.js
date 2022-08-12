@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const subsPlanSchema = mongoose.Schema({
   duration: {
-    // duration in months
+    // duration in hours
     type: Number,
     required: [true, 'Please provide the duration of the plan'],
     default: 1,
@@ -14,6 +14,7 @@ const subsPlanSchema = mongoose.Schema({
     required: [true, 'Please provide The title of the plan'],
   },
   price: {
+    // in dollars
     type: Number,
     required: [true, 'Please provide the Price'],
   },

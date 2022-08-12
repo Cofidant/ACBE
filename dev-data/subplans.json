@@ -1,0 +1,32 @@
+[
+  {
+    "duration": 2,
+    "title": "One Time",
+    "price": 10
+  },
+  {
+    "duration": 10,
+    "title": "One Week",
+    "price": 40
+  },
+  {
+    "duration": 40,
+    "title": "One Month",
+    "price": 150
+  },
+  {
+    "duration": 120,
+    "title": "Quaterly - (3 - months)",
+    "price": 300
+  },
+  {
+    "duration": 240,
+    "title": "Six months",
+    "price": 500
+  },
+  {
+    "duration": 500,
+    "title": "Annual (12 - months)",
+    "price": 800
+  }
+]
