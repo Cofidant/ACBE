@@ -41,7 +41,7 @@ exports.resizeCoverPhoto = catchAsync(async (req, res, next) => {
 exports.setDefaultFilter = (req, res, next) => {
   const filter = {}
   filter.published = true
-  if (req._parsedOriginalUrl.pathname.split('/').includes('me')) {
+  if (req._parsedOriginalUrl?.pathname?.split('/')?.includes('me')) {
     filter['authorID'] = req.user.id
   } else if (req.params.userID) {
     filter['authorID'] = req.params.userID
