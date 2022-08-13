@@ -10,8 +10,7 @@
     "start": "node server.js",
     "server": "nodemon server.js",
     "load_data_data": "node ./dev-data/upload.js --import",
-    "save_data": "node ./dev-data/upload.js --save",
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install npm && run build"
+    "save_data": "node ./dev-data/upload.js --save"
   },
   "keywords": [
     "anonymous confidant"
