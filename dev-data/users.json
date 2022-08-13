@@ -1,0 +1,75 @@
+[
+  {
+    "name": "Mahadi Abuhuraira",
+    "email": "mamt4real@gmail.com",
+    "password": "12345pass"
+  },
+  {
+    "username": "user1",
+    "name": "Lawwali sani salisy",
+    "email": "user1@anonymous.api",
+    "_kind": "patient",
+    "password": "12345pass"
+  },
+  {
+    "state": "kaduna",
+    "lga": "zaria",
+    "agePreference": "20-25",
+    "sexPreference": "Male",
+    "statusPreference": "Married",
+    "locationPreference": "Within",
+    "religionPreference": "Any",
+    "image": "default.jpg",
+    "name": "therapist 1",
+    "email": "therapist1@anonymous.api",
+    "_kind": "therapist",
+    "practicing_from": "2018-11-15T00:00:00.000Z",
+    "specialization": ["Dating", "Marriage"],
+    "password": "12345pass"
+  },
+  {
+    "username": "patient1",
+    "name": "patient one",
+    "email": "patient1@anonymous.api",
+    "_kind": "patient",
+    "password": "12345pass"
+  },
+  {
+    "username": "user2",
+    "name": "user 2",
+    "email": "user2@anonymous.api",
+    "_kind": "patient",
+    "password": "12345pass"
+  },
+  {
+    "username": "user3",
+    "name": "user 3",
+    "email": "user3@anonymous.api",
+    "_kind": "patient",
+    "password": "12345pass"
+  },
+  {
+    "username": "user4",
+    "name": "user 4",
+    "email": "user4@anonymous.api",
+    "_kind": "patient",
+    "password": "12345pass"
+  },
+  {
+    "practicing_from": "2022-08-04T17:00:46.000Z",
+    "specialization": ["Divorce", "Child", "Exercise"],
+    "state": "kaduna",
+    "lga": "zaria",
+    "sexPreference": "Male",
+    "statusPreference": "Married",
+    "locationPreference": "Within",
+    "religionPreference": "Any",
+    "image": "default.jpg",
+    "name": "therapist 2",
+    "email": "therapist2@anonymous.api",
+    "_kind": "therapist",
+    "qualifictaion": [],
+    "about": "Hi, I'am Dr. therapist 2",
+    "password": "12345pass"
+  }
+]

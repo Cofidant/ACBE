@@ -64,7 +64,12 @@ const start = async () => {
   try {
     // connect to database
     await connectDB(
-      process.env.mongo_URI || 'mongodb://localhost:27017/anonymous_confidant'
+      process.env.NODE_ENV == 'development'
+        ? process.env.mongo_URI
+        : process.env.DATABASE_VIRTUAL.replace(
+            '<password>',
+            process.env.DB_PASSWORD
+          )
     )
     /* create a http server */
     const httpServer = app.listen(PORT, () =>

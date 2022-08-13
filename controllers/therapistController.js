@@ -43,6 +43,18 @@ exports.addSessionNotes = catchAsync(async (req, res, next) => {
   })
 })
 
+exports.checkAppointmentOverlap = async (therapistID, startTime, endTime) => {
+  let isOverlap = false
+  const therapist = await Therapist.findById(therapistID).populate(
+    'activeSessions'
+  )
+  const activeSessions = therapist.activeSessions
+
+  // ...
+  // ...
+  return isOverlap
+}
+
 exports.getAllTherapists = factoryController.getAll(Therapist)
 exports.getTherapist = factoryController.getOne(Therapist, [
   ['activeClients', 'username name image'],

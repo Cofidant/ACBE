@@ -6,7 +6,7 @@ const User = require('./User')
 const postSchema = mongoose.Schema(
   {
     authorID: {
-      type: String,
+      type: mongoose.Schema.ObjectId,
       ref: 'User',
       required: [true, 'Please provide the author ID'],
     },
