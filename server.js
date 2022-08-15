@@ -1,5 +1,6 @@
 require('dotenv').config({ path: './config.env' })
 require('express-async-errors')
+const path = require('path')
 const helmet = require('helmet')
 const cors = require('cors')
 const xss = require('xss-clean')
@@ -29,6 +30,8 @@ app.use(
     max: 100,
   })
 )
+// serve static files
+app.use(express.static(path.join(__dirname, 'public')))
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
@@ -37,9 +40,9 @@ app.use((req, res, next) => {
 
 // DEFINE ROUTES
 
-app.get('/', (req, res) => {
-  res.send('Anonymous Confidant')
-})
+// app.get('/', (req, res) => {
+//   res.send('Anonymous Confidant')
+// })
 const authRouters = require('./routes/auth')
 const therapistRouter = require('./routes/therapistRoutes')
 const patientRouter = require('./routes/patient-routes')
@@ -47,6 +50,7 @@ const sessionRouter = require('./routes/sessionsRoter')
 const subsRouter = require('./routes/subscriptionRoutes')
 const postRouter = require('./routes/postRoutes')
 const commentRouter = require('./routes/commentRoutes')
+const paymentRouter = require('./routes/paymentRoutes')
 app.use('/api/v1/auth', authRouters)
 app.use('/api/v1/therapists', therapistRouter)
 app.use('/api/v1/patients', patientRouter)
@@ -54,6 +58,7 @@ app.use('/api/v1/sessions', sessionRouter)
 app.use('/api/v1/subscriptions', subsRouter)
 app.use('/api/v1/posts', postRouter)
 app.use('/api/v1/comments', commentRouter)
+app.use('/api/v1/payments', paymentRouter)
 app.use(notFound)
 app.use(errorHandler)
 

@@ -1,22 +1,18 @@
 const express = require('express')
 
-const feeregController = require('../controllers/feeRegController')
+const paymentController = require('../controllers/paymentsController')
+const { authenticationMiddleware } = require('../middlewares/authentication')
 
-const router = express.Router()
+const paymentRouter = express.Router()
 
-router.get('/', feeregController.getAllRecords)
+paymentRouter.use(authenticationMiddleware, paymentController.paymentMiddleware)
 
-router
-  .route('/:feeregID')
-  .get(feeregController.getOne)
-  .patch(feeregController.updatePayment)
-  .delete(feeregController.removeRecord)
-
-router.route('/test').get((req, res, next) => {
+paymentRouter.route('/test').get((req, res, next) => {
   res.render('initialis_payment')
 })
 
-router.route('/paystack/pay').post(feeregController.paystackPay)
-router.route('/paystack/callback').get(feeregController.paystackCallback)
+// paystack endpoints
+paymentRouter.route('/paystack/pay').post(paymentController.paystackInitialize)
+paymentRouter.route('/paystack/callback').get(paymentController.paystackVerify)
 
-module.exports = router
+module.exports = paymentRouter

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose')
 
 const connectDB = async (url) => {
   try {
@@ -6,13 +6,13 @@ const connectDB = async (url) => {
       useNewUrlParser: true,
       // useCreateIndex: true,
       // useFindAndModify: false,
-      // useUnifiedTopology: true,
-    });
-    console.log("mongodb connected");
+      useUnifiedTopology: true,
+    })
+    console.log('mongodb connected')
   } catch (err) {
-    console.error(err.message);
-    process.exit(1);
+    console.error(err.message)
+    process.exit(1)
   }
-};
+}
 
-module.exports = connectDB;
+module.exports = connectDB

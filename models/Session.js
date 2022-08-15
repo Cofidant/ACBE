@@ -9,6 +9,9 @@ const appointmentSchema = mongoose.Schema({
   },
   status: {
     type: String,
+    set: function (val) {
+      return val.toLowerCase()
+    },
     enum: {
       values: ['active', 'canceled', 'complete', 'pending'],
       message:
@@ -52,6 +55,10 @@ const sessionSchema = mongoose.Schema(
       type: Date,
       default: Date.now(),
     },
+    hoursRemaining: {
+      type: Number,
+      default: 0,
+    },
     paymentRef: String,
     paymentStatus: {
       type: String,
@@ -61,16 +68,16 @@ const sessionSchema = mongoose.Schema(
         message: 'paymentStatus is either paid or pending',
       },
     },
-    messages:{
+    messages: {
       type: Array,
-      default:[]
+      default: [],
     },
-    patient_socket_id:{
+    patient_socket_id: {
       type: String,
     },
-    therapist_socket_id:{
-      type: String
-    }
+    therapist_socket_id: {
+      type: String,
+    },
   },
   {
     timestamps: true,
@@ -85,10 +92,40 @@ sessionSchema.virtual('expired').get(function () {
 
 sessionSchema.pre(/^find/, function (next) {
   this.populate('therapist', 'name image username')
-    .populate('patient', 'username image')
+    .populate('patient', 'username image email')
     .sort('-createdAt')
   next()
 })
 
+sessionSchema.statics.checkAppointmentOverlap = async function (
+  therapist,
+  time
+) {
+  const activeAppointments = []
+
+  // get therapist active Sessions
+  const activeSessions = await this.find({
+    therapist,
+    hoursRemaining: { $gt: 0 },
+  }).select('appointments')
+
+  // for each session find the actve appointments
+  activeSessions.array.forEach((element) => {
+    const appointments = element.appointments.filter(
+      (ap) => ap.start_time >= Date.now() && ap.status == 'active'
+    )
+    activeAppointments.push(...appointments)
+  })
+
+  // check for overlap
+  // an appointment overlaps if the time is within 2hrs15min
+  // (135 mins) of the start_time of active appointments
+  for (const apt of activeAppointments) {
+    if (time >= apt.start_time && time <= apt.start_time + 135 * 60)
+      return false
+  }
+
+  return true
+}
 const Session = mongoose.model('Session', sessionSchema)
 module.exports = Session

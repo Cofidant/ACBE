@@ -17,7 +17,6 @@ const {
 const storiesRouter = require('./storiesRoutes')
 const chatRouter = require('./chatRoutes')
 const { getAllSessions } = require('../controllers/session-controller')
-const { paystackPay } = require('../controllers/paymentController')
 
 const patientRouter = require('express').Router()
 
@@ -41,7 +40,6 @@ patientRouter
   .get(restrictRouteTo('admin'), getPatient)
   .delete(restrictRouteTo('admin'), deletePatient)
 
-patientRouter.post('/me/subscribe', paystackPay)
 patientRouter
   .route('/me/sessions/:sessionID/appointments')
   .post(bookAppointment)

@@ -6,6 +6,7 @@ const Session = require('../models/Session')
 const factoryController = require('./handlerFactory')
 const { BadRequest } = require('../errors')
 const SubscriptionPlan = require('../models/SubscriptionPlan')
+const { initializePayment } = require('../utils/paystack')
 
 // create a search weight Function
 const getTherapistSuitabilty = (therapist, profile) => {
@@ -92,11 +93,6 @@ module.exports.getSessions = async (req, res) => {
   )
 }
 
-module.exports.endSession = async (req, res) => {
-  // const modified = await endTherapySession(req.params.id)
-  // res.status(StatusCodes.OK).json(modified)
-}
-
 //req.body includes selected therapists id, contract period (subscriptionPlan)
 module.exports.selectTherapy = catchAsync(async (req, res, next) => {
   const { therapistID, subscriptionPlan } = req.body
@@ -104,7 +100,7 @@ module.exports.selectTherapy = catchAsync(async (req, res, next) => {
   const therapist = await Therapist.findById(therapistID)
   const subPlan = await SubscriptionPlan.findById(subscriptionPlan)
   if (!therapist || !subPlan) {
-    return next(new BadRequest('Invalid therapistID'))
+    return next(new BadRequest('Invalid therapistID or subscriptionPlan'))
   }
 
   // Create The Session with paymentStatus pending
@@ -125,23 +121,47 @@ module.exports.selectTherapy = catchAsync(async (req, res, next) => {
 
 exports.bookAppointment = catchAsync(async (req, res, next) => {
   const { sessionID } = req.params
+  const { time } = req.body
+  const start_time = new Date(time)
+  if (!time || start_time == 'Invalid Date')
+    return next(
+      new BadRequest('Please provide a valid time for the appointment!')
+    )
   // find the right session
   const session = await Session.findOne({
     _id: sessionID,
     patient: req.user._id,
     paymentStatus: 'paid',
+    hoursRemaining: { $gt: 0 },
     expiryDate: { $gt: Date.now() },
   })
   if (!session)
     return next(new BadRequest('Invalid session or session expired'))
 
-  const start_time = new Date(req.body.startTime)
   // confirm if no overlap in active sessions of therapist
+  const noOverLap = await Session.checkAppointmentOverlap(
+    session.therapist,
+    start_time
+  )
+  if (!noOverLap)
+    return next(
+      new BadRequest('Time is already booked, Please choose a different time')
+    )
 
   // create an appointment and add to session
+  await Session.findByIdAndUpdate(session._id, {
+    $push: {
+      appointments: {
+        start_time,
+        end_time: start_time + 130 * 60,
+        status: 'pending',
+      },
+    },
+    $inc: { hoursRemaining: -2 },
+  })
 
   // send email notification to therapist
-
+  // Yet to be implemented
   res
     .status(StatusCodes.CREATED)
     .json({ status: 'success', message: 'appointment requested' })
