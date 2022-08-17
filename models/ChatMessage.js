@@ -43,6 +43,10 @@ const chatMessageSchema = new mongoose.Schema(
       ref: 'User',
       required: [true, 'Please provide your ID'],
     },
+    date:{
+      type: Date,
+      default: Date.now()
+    },
     readByRecipients: [readByRecipientSchema],
   },
   {

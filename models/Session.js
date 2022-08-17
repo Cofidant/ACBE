@@ -72,12 +72,7 @@ const sessionSchema = mongoose.Schema(
       type: Array,
       default: [],
     },
-    patient_socket_id: {
-      type: String,
-    },
-    therapist_socket_id: {
-      type: String,
-    },
+    socketIDs:[String]
   },
   {
     timestamps: true,

@@ -5,9 +5,9 @@ const Comment = require("../models/commentModel");
 const factory = require("./handlerFactory");
 
 exports.assignIDs = catchAsync(async (req,res,next)=>{
-    if(!req.body.postID)
+    if(!req.body.postID){console.log("no post id")}
         req.body.postID = req.params.postID;
-    if(!req.body.authorID)
+    if(!req.body.authorID){console.log("no auth id")}
         req.body.authorID = req.user.id;
     next();
 });
