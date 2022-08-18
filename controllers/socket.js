@@ -12,8 +12,8 @@ module.exports.useSocket = (server) =>{
       Session.findById(data.sessionID).then((session)=>{
         const expiredSocketID = session.socketIDs.filter(id =>{
          return !connected.includes(id)
-        })[0]
-        session.socketIDs = session.sessionIDs.splice(session.socketIDs.indexof(expiredSocketID),1).push(socket.id);
+        })[0];
+        session.sessionIDs.splice(session.socketIDs.indexof(expiredSocketID),1).push(socket.id);
         session.save().then(session =>{
           socket.session = session;
           socket.messages = [];
@@ -55,7 +55,3 @@ module.exports.useSocket = (server) =>{
     })
   })
 }
-//connect to db
-//on message {MESSAGE A.K.A DATA INCLUDES CLIENT SMS,SESSIONID,}
-//check if socket.sessionID exists
-//if not, set socket.sessionID 
