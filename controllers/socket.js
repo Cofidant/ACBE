@@ -2,7 +2,7 @@ const Session = require('../models/Session');
 const Chat = require("../models/ChatMessage");
 
 
-const useSocket = (server) =>{
+module.exports.useSocket = (server) =>{
   const io = require("socket.io");
   const connected = []
   io.on("connection",(socket)=>{
