@@ -43,17 +43,35 @@ exports.addSessionNotes = catchAsync(async (req, res, next) => {
   })
 })
 
-exports.checkAppointmentOverlap = async (therapistID, startTime, endTime) => {
-  let isOverlap = false
-  const therapist = await Therapist.findById(therapistID).populate(
-    'activeSessions'
-  )
-  const activeSessions = therapist.activeSessions
+exports.getAllMyAppointments = catchAsync(async (req, res, next) => {
+  const appointments = await Session.getTherapistAppointmennts(req.user._id)
+  res.status(StatusCodes.OK).json({
+    status: 'success',
+    results: appointments.length,
+    data: appointments,
+  })
+})
 
-  // ...
-  // ...
-  return isOverlap
-}
+exports.modifyAppointment = catchAsync(async (req, res, next) => {
+  const { appointmentID, sessionID } = req.params
+  const { status } = req.body
+
+  await Session.updateOne(
+    {
+      _id: sessionID,
+      'appointments._id': appointmentID,
+    },
+    {
+      'appointments.$.status': status,
+    }
+  )
+  res
+    .status(StatusCodes.OK)
+    .json({
+      status: 'success',
+      message: 'Appointment status updated successfully',
+    })
+})
 
 exports.getAllTherapists = factoryController.getAll(Therapist)
 exports.getTherapist = factoryController.getOne(Therapist, [

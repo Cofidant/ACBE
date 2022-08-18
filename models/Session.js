@@ -60,6 +60,13 @@ const sessionSchema = mongoose.Schema(
       default: 0,
     },
     paymentRef: String,
+    paymentMethod: {
+      type: String,
+      enum: {
+        values: ['paystack'],
+        message: 'paymentMethod is one of (paystack, )',
+      },
+    },
     paymentStatus: {
       type: String,
       default: 'pending',
@@ -97,10 +104,7 @@ sessionSchema.pre(/^find/, function (next) {
   next()
 })
 
-sessionSchema.statics.checkAppointmentOverlap = async function (
-  therapist,
-  time
-) {
+sessionSchema.statics.getTherapistAppointmennts = async function (therapist) {
   const activeAppointments = []
 
   // get therapist active Sessions
@@ -109,13 +113,22 @@ sessionSchema.statics.checkAppointmentOverlap = async function (
     hoursRemaining: { $gt: 0 },
   }).select('appointments')
 
-  // for each session find the actve appointments
+  // for each session find the active appointments
   activeSessions.array.forEach((element) => {
     const appointments = element.appointments.filter(
       (ap) => ap.start_time >= Date.now() && ap.status == 'active'
     )
     activeAppointments.push(...appointments)
   })
+
+  return activeAppointments
+}
+
+sessionSchema.statics.checkAppointmentOverlap = async function (
+  therapist,
+  time
+) {
+  const activeAppointments = await this.getTherapistAppointmennts(therapist)
 
   // check for overlap
   // an appointment overlaps if the time is within 2hrs15min

@@ -1,6 +1,8 @@
+const { StatusCodes } = require('http-status-codes')
 const { BadRequest } = require('../errors')
 const Session = require('../models/Session')
 const catchAsync = require('../utils/catchAsync')
+const { getEndDate } = require('../utils/myUtills')
 const paystack = require('../utils/paystack')
 
 exports.paymentMiddleware = catchAsync(async (req, res, next) => {
@@ -12,11 +14,11 @@ exports.paymentMiddleware = catchAsync(async (req, res, next) => {
     return next(new BadRequest('Session is already paid!'))
 
   const { email, _id, username } = session.patient
-  const { price } = session.subscriptionPlan
+  const { price  } = session.subscriptionPlan
 
   const paymentData = {
     email,
-    amount: price * 100,
+    amount: price * 100 * (process.env.DOLLAR_RATE || 600),
     // currency: 'NGN',
   }
 
@@ -36,6 +38,7 @@ exports.paystackInitialize = catchAsync(async (req, res, next) => {
     // Update payment reference
     Session.findByIdAndUpdate(req.sessionPaid._id, {
       paymentRef: result.reference,
+      paymentMethod: 'paystack',
     })
       .then(() => {})
       .catch((err) => {})
@@ -47,10 +50,25 @@ exports.paystackInitialize = catchAsync(async (req, res, next) => {
 
 exports.paystackVerify = catchAsync(async (req, res, next) => {
   const ref = req.query.reference
+  const session = await Session.findOne({paymentRef:ref, paymentMethod:'paystack'})
+
+  if(!ref)
+    return next(new BadRequest("Please provide the payment reference"));
+  // Check if payment is already verified
+  if (session.paymentStatus === 'paid')
+
+  return res.status(StatusCodes.OK).json({status:'success',message:'payment already verified'});
 
   await paystack.verifyPayment(ref, (result) => {
     const { customer, reference, amount, metadata } = result.data
     //do some updates in the database
+    await Session.findByIdAndUpdate(session._id,{
+      paymentStatus: 'paid',
+      paymentMethod: 'paystack',
+      subscribedDate: Date.now() - 1000,
+      expiryDate: getEndDate(session?.subscriptionPlan?.duration / 40),
+      hoursRemaining: session?.subscriptionPlan?.duration
+    },{new:true})
     res.status(200).json({
       status: 'success',
       message: 'Payment successful!',

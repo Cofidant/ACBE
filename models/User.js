@@ -5,10 +5,6 @@ const crypto = require('crypto')
 
 const UserSchema = new mongoose.Schema(
   {
-    sessions: {
-      type: Array,
-      default: [],
-    },
     name: {
       type: String,
       required: [true, 'Enter your Name'],
@@ -63,7 +59,6 @@ UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     return next()
   }
-  console.log('im here')
   const salt = await bcrypt.genSaltSync(10)
   this.password = await bcrypt.hash(this.password, salt)
   this.passwordChangedAt = Date.now() - 1000

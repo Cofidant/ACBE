@@ -10,6 +10,8 @@ const {
   updateMe,
   getAllMySessions,
   addSessionNotes,
+  getAllMyAppointments,
+  modifyAppointment,
 } = require('../controllers/therapistController')
 const {
   authenticationMiddleware,
@@ -41,6 +43,14 @@ therapistRouter
 therapistRouter.get('/me/sessions', getAllMySessions)
 therapistRouter.route('/me/sessions/:sessionID/notes').post(addSessionNotes)
 therapistRouter.use('/me/sessions/:sessionID/chats/', chatRouter)
+therapistRouter
+  .route('/me/sessions/:sessionID/appointments/')
+  .get(getAllMyAppointments)
+therapistRouter.patch(
+  '/me/sessions/:sessionID/appointments/:appointmentID',
+  modifyAppointment
+)
+
 // .get(getSessionNotes)
 
 module.exports = therapistRouter
