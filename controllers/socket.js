@@ -3,7 +3,8 @@ const Chat = require("../models/ChatMessage");
 
 
 module.exports.useSocket = (server) =>{
-  const io = require("socket.io");
+  const {Server} = require("socket.io");
+  const io = new Server(server)
   const connected = []
   io.on("connection",(socket)=>{
     connected.push(socket.id);
