@@ -13,7 +13,7 @@ const appointmentSchema = mongoose.Schema({
       return val.toLowerCase()
     },
     enum: {
-      values: ['active', 'canceled', 'complete', 'pending'],
+      values: ['active', 'cancelled', 'complete', 'pending'],
       message:
         "status is one of ('active', 'canceled','pending' or 'complete')",
     },
@@ -75,10 +75,6 @@ const sessionSchema = mongoose.Schema(
         message: 'paymentStatus is either paid or pending',
       },
     },
-    messages: {
-      type: Array,
-      default: [],
-    },
     patient_socket_id: {
       type: String,
     },
@@ -93,13 +89,18 @@ const sessionSchema = mongoose.Schema(
   }
 )
 
+// indexes
+sessionSchema.index({ paymentStatus: 1 })
+
+// virtual Fields
 sessionSchema.virtual('expired').get(function () {
   return Date.now() >= this.expiryDate
 })
 
+// Hooks
 sessionSchema.pre(/^find/, function (next) {
-  this.populate('therapist', 'name image username')
-    .populate('patient', 'username image email')
+  this.populate('therapist', 'name image username email')
+    .populate('patient', 'username image email name')
     .sort('-createdAt')
   next()
 })

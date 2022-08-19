@@ -7,7 +7,7 @@ const htmlToText = require('html-to-text')
 module.exports = class Email {
   constructor(user, url) {
     this.to = user.email
-    this.firstName = user.name.split(' ')[0]
+    this.firstName = user.name?.split(' ')[0]
     this.from = `Anonymous Confidant <${process.env.EMAIL_FROM}>`
     this.url = url
   }
@@ -33,13 +33,14 @@ module.exports = class Email {
     })
   }
 
-  async send(template, subject) {
+  async send(template, subject, params = {}) {
     const html = pug.renderFile(
       path.join(__dirname, `../views/emails/${template}.pug`),
       {
         firstName: this.firstName,
         url: this.url,
         subject,
+        ...params,
       }
     )
 
@@ -63,5 +64,17 @@ module.exports = class Email {
       'passwordReset',
       'Your password reset link (Expires in 15 minutes)'
     )
+  }
+  async sendAppointmentNotification(appointment, therapist) {
+    // Yet to be Implemented
+  }
+  async sendReservationNotice(session) {
+    // Yet to be Implemented
+  }
+  async sendReservationExpired(session) {
+    // Yet to be Implemeneted
+  }
+  async sendPaymentSuccessful(session) {
+    // Yet to be Implemented
   }
 }
