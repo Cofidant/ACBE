@@ -59,7 +59,7 @@ class QueryHandler {
   }
 
   process() {
-    return this.filter().sort().project().paginate().query
+    return this.filter().sort().project().paginate().query.clone()
   }
 }
 
