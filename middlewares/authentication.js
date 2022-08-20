@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const { UnAuthenticated } = require('../errors')
 const User = require('../models/User')
+const catchAsync = require('../utils/catchAsync')
 
 exports.authenticationMiddleware = catchAsync(async (req, res, next) => {
   const authHeader = req.headers.authorization
