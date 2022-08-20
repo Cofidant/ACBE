@@ -29,7 +29,7 @@ const register = catchAsync(async (req, res, next) => {
   })
 })
 
-const login = catchAsync(async (req, res) => {
+const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body
   if (!email || !password) {
     throw new BadRequest('Enter Email and Password')
@@ -118,14 +118,12 @@ const resetPassword = catchAsync(async (req, res, next) => {
   await user.save()
 
   const token = user.createJWT()
-  res
-    .status(StatusCodes.CREATED)
-    .json({
-      status: 'success',
-      message: 'password reset successfully',
-      user,
-      token,
-    })
+  res.status(StatusCodes.CREATED).json({
+    status: 'success',
+    message: 'password reset successfully',
+    user,
+    token,
+  })
 })
 
 module.exports = {

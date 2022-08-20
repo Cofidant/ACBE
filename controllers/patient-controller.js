@@ -78,7 +78,7 @@ module.exports.getTherapy = catchAsync(async (req, res, next) => {
   })
 })
 
-module.exports.getSessions = async (req, res) => {
+module.exports.getSessions = catchAsync(async (req, res, next) => {
   const id = req.user._id
   const sessions = await Session.find({ patient: id })
     .select('-notes')
@@ -91,7 +91,7 @@ module.exports.getSessions = async (req, res) => {
       data: sessions,
     })
   )
-}
+})
 
 //req.body includes selected therapists id, contract period (subscriptionPlan)
 module.exports.selectTherapy = catchAsync(async (req, res, next) => {
