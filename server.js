@@ -9,6 +9,7 @@ const express = require('express')
 const list_end_points = require('list_end_points')
 const connectDB = require('./config/theDatabase')
 const app = express()
+const http = require('http')
 // Errors Handlers
 const notFound = require('./middlewares/not-found')
 const errorHandler = require('./middlewares/error-handler')
@@ -73,11 +74,10 @@ const start = async () => {
           )
     )
     /* create a http server */
-    const httpServer = app.listen(PORT, () =>
-      console.log(`Server started at port ${PORT}`)
-    )
+    const httpServer = http.createServer(app)
+    httpServer.listen(PORT, () => console.log(`Server started at port ${PORT}`))
     /** Create socket connection */
-    // useSocket(httpServer)
+    useSocket(httpServer)
     // global.io = new Server(httpServer)
     // global.io.on('connection', WebSockets.connection)
   } catch (error) {
