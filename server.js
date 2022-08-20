@@ -83,11 +83,13 @@ const start = async () => {
     )
     /** Create socket connection */
     useSocket(httpServer);
-    global.io = new Server(httpServer)
-    global.io.on('connection', WebSockets.connection)
+    // global.io = new Server(httpServer)
+    // global.io.on('connection', WebSockets.connection)
   } catch (error) {
     console.log(error)
   }
 }
+
+
 
 start()
