@@ -13,6 +13,7 @@ const {
   deletePatient,
   patientFilter,
   bookAppointment,
+  createPatient,
 } = require('../controllers/patient-controller')
 const storiesRouter = require('./storiesRoutes')
 const chatRouter = require('./chatRoutes')
@@ -26,7 +27,10 @@ patientRouter.use(authenticationMiddleware)
 // redirect stories to stories router
 patientRouter.use('/stories', patientFilter, storiesRouter)
 
-patientRouter.route('/').get(restrictRouteTo('admin'), getAllPatients)
+patientRouter
+  .route('/')
+  .get(restrictRouteTo('admin'), getAllPatients)
+  .post(restrictRouteTo('admin'), createPatient)
 
 patientRouter.use(restrictRouteTo('patient'))
 patientRouter.route('/me').get(getMe).patch(updateMe)

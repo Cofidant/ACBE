@@ -176,3 +176,4 @@ exports.patientFilter = (req, res, next) => {
 exports.getAllPatients = factoryController.getAll(Patient)
 exports.getPatient = factoryController.getOne(Patient)
 exports.deletePatient = factoryController.deleteOne(Patient)
+exports.createPatient = factoryController.createOne(Patient)
