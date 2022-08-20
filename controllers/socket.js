@@ -67,6 +67,11 @@ module.exports.useSocket = (server) =>{
       })
       emmitmessage(data)
         console.log("message emmited")
+        Chat.create({sessionID,message,postedBy}).then(res =>{
+          console.log("msg created" + res)
+        }).catch(err =>{
+          console.log("failed" + err)
+        })
     })
     socket.on("disconnect",()=>{
       if(trackSocket(socket.id)){
