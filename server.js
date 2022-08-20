@@ -6,8 +6,6 @@ const cors = require('cors')
 const xss = require('xss-clean')
 const expressRateLmt = require('express-rate-limit')
 const express = require('express')
-const { Server } = require('socket.io')
-const WebSockets = require('./utils/websocket')
 const list_end_points = require('list_end_points')
 const connectDB = require('./config/theDatabase')
 const app = express()
@@ -34,16 +32,13 @@ app.use(
 // serve static files
 app.use(express.static(path.join(__dirname, 'public')))
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*')
-  next()
-})
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', '*')
+//   next()
+// })
 
 // DEFINE ROUTES
 
-// app.get('/', (req, res) => {
-//   res.send('Anonymous Confidant')
-// })
 const authRouters = require('./routes/auth')
 const therapistRouter = require('./routes/therapistRoutes')
 const patientRouter = require('./routes/patient-routes')
