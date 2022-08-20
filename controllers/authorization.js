@@ -21,6 +21,8 @@ const register = catchAsync(async (req, res, next) => {
   // await new Email(user, url).sendWelcome()
 
   const token = user.createJWT()
+  // hide password
+  user.password = undefined
   res.status(StatusCodes.CREATED).json({
     status: 'success',
     message: 'Registered Successfully',
@@ -46,6 +48,8 @@ const login = catchAsync(async (req, res, next) => {
     throw new UnAuthenticated('Invalid Credentials')
   }
   const token = user.createJWT()
+  // hide password
+  user.password = undefined
   res
     .status(StatusCodes.OK)
     .json({ status: 'success', message: 'login successfully', user, token })

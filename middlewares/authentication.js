@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const { UnAuthenticated } = require('../errors')
 const User = require('../models/User')
 
-exports.authenticationMiddleware = async (req, res, next) => {
+exports.authenticationMiddleware = catchAsync(async (req, res, next) => {
   const authHeader = req.headers.authorization
 
   if (!authHeader || !authHeader.startsWith('Bearer')) {
@@ -33,18 +33,20 @@ exports.authenticationMiddleware = async (req, res, next) => {
     req.user = user
     next()
   } catch (error) {
-    throw new UnAuthenticated('Not Authorized')
+    next(new UnAuthenticated('Not Authorized'))
   }
-}
+})
 
 exports.restrictRouteTo = (...clearance) => {
   return (req, res, next) => {
     if (!req.user)
-      throw new UnAuthenticated('Please Log in to access this route!')
+      return next(new UnAuthenticated('Please Log in to access this route!'))
     if (req.user._kind)
       if (!clearance.includes(req.user._kind)) {
-        throw new UnAuthenticated(
-          'Ooops you are not cleared to perform this action'
+        return next(
+          new UnAuthenticated(
+            'Ooops you are not cleared to perform this action'
+          )
         )
       }
     // Else Is Admin has all access and doest have _kind property
