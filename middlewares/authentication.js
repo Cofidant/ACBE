@@ -26,9 +26,11 @@ exports.authenticationMiddleware = catchAsync(async (req, res, next) => {
 
     // confirm if user doesnt change password after the token is issued
     if (user.changesPasswordAfter(iat)) {
-      return next(new UnAuthenticated(
-        'User recently changed password!! please log in again'
-      ))
+      return next(
+        new UnAuthenticated(
+          'User recently changed password!! please log in again'
+        )
+      )
     }
 
     req.user = user
@@ -42,7 +44,7 @@ exports.restrictRouteTo = (...clearance) => {
   return catchAsync(async (req, res, next) => {
     if (!req.user)
       return next(new UnAuthenticated('Please Log in to access this route!'))
-    if (req.user._kind)
+    if (req.user._kind) {
       if (!clearance.includes(req.user._kind)) {
         return next(
           new UnAuthenticated(
@@ -50,6 +52,7 @@ exports.restrictRouteTo = (...clearance) => {
           )
         )
       }
+    }
     // Else Is Admin has all access and doest have _kind property
     next()
   })

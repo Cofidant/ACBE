@@ -27,7 +27,7 @@ therapistRouter.use(authenticationMiddleware)
 // only admins can get all therapist or add/delete a therapist
 therapistRouter
   .route('/')
-  .get(restrictRouteTo('admin'), getAllTherapists)
+  .get(getAllTherapists)
   .post(restrictRouteTo('admin'), addTherapist)
 
 therapistRouter.use(restrictRouteTo('therapist'))
