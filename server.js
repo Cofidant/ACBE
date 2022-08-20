@@ -77,7 +77,7 @@ const start = async () => {
       console.log(`Server started at port ${PORT}`)
     )
     /** Create socket connection */
-    useSocket(httpServer)
+    // useSocket(httpServer)
     // global.io = new Server(httpServer)
     // global.io.on('connection', WebSockets.connection)
   } catch (error) {
