@@ -14,7 +14,7 @@ const app = express()
 // Errors Handlers
 const notFound = require('./middlewares/not-found')
 const errorHandler = require('./middlewares/error-handler')
-const {useSocket} = require("./controllers/socket")
+const { useSocket } = require('./controllers/socket')
 // const corsOptions = {
 //   origin: "https://anonymous-confidants-liard.vercel.app/",
 //   optionsSuccessStatus: 200,
@@ -82,9 +82,9 @@ const start = async () => {
       console.log(`Server started at port ${PORT}`)
     )
     /** Create socket connection */
-    useSocket(httpServer);
-    global.io = new Server(httpServer)
-    global.io.on('connection', WebSockets.connection)
+    useSocket(httpServer)
+    // global.io = new Server(httpServer)
+    // global.io.on('connection', WebSockets.connection)
   } catch (error) {
     console.log(error)
   }
