@@ -4,7 +4,7 @@ const reviewSchema = mongoose.Schema(
   {
     therapist: {
       type: mongoose.Schema.ObjectId,
-      ref: 'Therapist',
+      ref: 'User',
       required: [true, 'Please provide the Therapist id you are reviewing'],
     },
     patient: {
