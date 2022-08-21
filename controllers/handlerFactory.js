@@ -48,16 +48,13 @@ exports.getOne = (Model, populateOptions) =>
 exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
     const filter = req.filter ? req.filter : {}
-    new QueryHandler(Model.find(filter).clone(), req.query)
-      .process()
-      .then((results) => {
-        res
-          .status(200)
-          .json({ status: 'success', result: results.length, data: results })
-      })
-      .catch((err) => {
-        next(new InternalServerError('Error Retrieving Results'))
-      })
+    const results = await new QueryHandler(
+      Model.find(filter).clone(),
+      req.query
+    ).process()
+    res
+      .status(200)
+      .json({ status: 'success', result: results.length, data: results })
   })
 
 exports.createOne = (Model) =>
