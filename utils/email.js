@@ -2,14 +2,14 @@ const nodemailer = require('nodemailer')
 const catchAsync = require('./catchAsync')
 const pug = require('pug')
 const path = require('path')
-const htmlToText = require('html-to-text')
+const { htmlToText } = require('html-to-text')
 
 module.exports = class Email {
   constructor(user, url) {
     this.to = user.email
     this.firstName = user.name?.split(' ')[0]
     this.from = `Anonymous Confidant <${process.env.EMAIL_FROM}>`
-    this.url = url
+    this.url = url || 'https://anonymous-confidant.com'
   }
 
   myCreateTransport() {
@@ -56,7 +56,7 @@ module.exports = class Email {
   }
 
   async sendWelcome() {
-    await this.send('welcome', 'Welcome to webuzz Platform')
+    await this.send('welcome', 'YOU HAVE SAFELY LANDED!!')
   }
 
   async sendPasswordReset() {
@@ -65,16 +65,18 @@ module.exports = class Email {
       'Your password reset link (Expires in 15 minutes)'
     )
   }
-  async sendAppointmentNotification(appointment, therapist) {
-    // Yet to be Implemented
+  async sendAppointmentNotification(appointment) {
+    await this.send('appointmentNotice', 'SESSION SCHEDULED', { appointment })
   }
-  async sendReservationNotice(session) {
-    // Yet to be Implemented
+  async sendReservationNotice(therapist) {
+    await this.send('reservationNotice', 'MEET YOUR THERAPIST', { therapist })
   }
-  async sendReservationExpired(session) {
-    // Yet to be Implemeneted
+  async sendReservationExpired() {
+    await this.send('reservationExpired', 'Reservation Expired')
   }
   async sendPaymentSuccessful(session) {
-    // Yet to be Implemented
+    await this.send('paymentSuccessful', 'PAYMENT SUCCESSFUL', {
+      plan: session.subscriptionPlan,
+    })
   }
 }

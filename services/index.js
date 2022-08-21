@@ -21,7 +21,7 @@ const sleep = (ms) => new Promise((res) => setTimeout(res, ms))
         if (session.createdAt.getTime() + twenty4hours <= Date.now()) {
           await Session.findByIdAndDelete(session._id)
           // Send Removal Email
-          await new Email(session.patient).sendReservationExpired(session)
+          await new Email(session.patient).sendReservationExpired()
         }
       }
     } catch (error) {

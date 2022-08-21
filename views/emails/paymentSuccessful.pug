@@ -1,0 +1,18 @@
+extends baseEmail
+
+block content
+    p Hi #{firstName},
+    p You have successfully subscribed for a #{plan.title} therapy session plan, which gives you access to your 
+    | matched therapist for a total of #{plan.duration} hours.
+    p Each appointment is a 2 hour session with a maximum of 5 appointments per week
+    p Proceed to book your appointment based on your schedule.
+    table.btn.btn-primary(role='presentation', border='0', cellpadding='0', cellspacing='0')
+        tbody
+            tr
+                td(align='left')
+                    table(role='presentation', border='0', cellpadding='0', cellspacing='0')
+                        tbody
+                            tr
+                                td
+                                    a(href=`${url}`, target='_blank') Make Appointment
+    

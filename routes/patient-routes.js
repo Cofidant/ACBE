@@ -18,6 +18,7 @@ const {
 const storiesRouter = require('./storiesRoutes')
 const chatRouter = require('./chatRoutes')
 const { getAllSessions } = require('../controllers/session-controller')
+const reviewRouter = require('./reviewRoutes')
 
 const patientRouter = require('express').Router()
 
@@ -26,6 +27,7 @@ patientRouter.use(authenticationMiddleware)
 
 // redirect stories to stories router
 patientRouter.use('/stories', patientFilter, storiesRouter)
+patientRouter.use('/reviews', patientFilter, reviewRouter)
 
 patientRouter
   .route('/')
@@ -48,4 +50,5 @@ patientRouter
   .route('/me/sessions/:sessionID/appointments')
   .post(bookAppointment)
 patientRouter.use('/me/sessions/:sessionID/chats/', chatRouter)
+
 module.exports = patientRouter

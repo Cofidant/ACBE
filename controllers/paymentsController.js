@@ -1,6 +1,7 @@
 const { StatusCodes } = require('http-status-codes')
 const { BadRequest } = require('../errors')
 const Session = require('../models/Session')
+const SubscriptionPlan = require('../models/SubscriptionPlan')
 const catchAsync = require('../utils/catchAsync')
 const Email = require('../utils/email')
 const { getEndDate } = require('../utils/myUtills')
@@ -41,8 +42,16 @@ exports.paystackInitialize = catchAsync(async (req, res, next) => {
       paymentRef: result.reference,
       paymentMethod: 'paystack',
     })
-      .then(() => {})
-      .catch((err) => {})
+      .then(async (updated) => {
+        // Send Payment Successfull Email
+        const populated = await Session.findById(updated._id)
+          .populate('subscriptionPlan')
+          .populate('patient', 'name email username')
+        await new Email(populated.patient).sendPaymentSuccessful(populated)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
 
     res.status(200).json(result.data)
     // res.redirect(result.data.authorization_url)

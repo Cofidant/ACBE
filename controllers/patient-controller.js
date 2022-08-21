@@ -7,6 +7,7 @@ const factoryController = require('./handlerFactory')
 const { BadRequest } = require('../errors')
 const SubscriptionPlan = require('../models/SubscriptionPlan')
 const { initializePayment } = require('../utils/paystack')
+const Email = require('../utils/email')
 
 // create a search weight Function
 const getTherapistSuitabilty = (therapist, profile) => {
@@ -112,6 +113,11 @@ module.exports.selectTherapy = catchAsync(async (req, res, next) => {
     paymentRef: '',
   })
 
+  // Send Notification Email
+  await new Email(
+    req.user,
+    (url = 'https://anonymous-confidant.com')
+  ).sendReservationNotice(therapist)
   res.status(StatusCodes.CREATED).json({
     status: 'success',
     message: 'session created successfully',
@@ -161,7 +167,10 @@ exports.bookAppointment = catchAsync(async (req, res, next) => {
   })
 
   // send email notification to therapist
-  // Yet to be implemented
+  await new Email(req.user).sendAppointmentNotification({
+    start_time,
+    status: 'pending',
+  })
   res
     .status(StatusCodes.CREATED)
     .json({ status: 'success', message: 'appointment requested' })

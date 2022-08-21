@@ -75,18 +75,18 @@ exports.updateMe = (Model) =>
     res.status(StatusCodes.OK).json({ status: 'success', data: updated })
   })
 
-exports.allowEdits = (Model) =>
+exports.allowEdits = (Model, field = 'authorID') =>
   catchAsync(async (req, res, next) => {
     const id = Model.modelName.toLowerCase() + 'ID'
     const doc = await Model.findById(req.params[id])
-    if (doc.authorID != req.user.id && !(req.user.clearance == 'admin')) {
+    if (doc[field] != req.user.id) {
       throw new MyError(
         `You can only ${req.method.toLowerCase()} ${Model.modelName.toLowerCase()} you created`,
         403
       )
     }
     //you cant change author or publish post via this route
-    ;['authorID', 'published'].forEach((field) => {
+    ;[field, 'published'].forEach((field) => {
       if (req.body[field]) delete req.body[field]
     })
 

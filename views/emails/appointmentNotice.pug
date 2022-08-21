@@ -1,0 +1,29 @@
+extends baseEmail
+
+block content
+    p Hi #{firstName},
+    p Your appointment is scheduled with the following details.
+    div 
+        ul.therapist_info 
+            li
+                b Start Time:  
+                | #{appointment.start_time}
+            li
+                b Duration: 
+                | 2 hours
+            li
+                b Status: 
+                |  #{appointment.status}
+    p Towards your session, be informed that your therapist is aware of you and positively have you in mind, be ready | || for that change you desire
+    p Make sure to join in time.
+    p Follow the link below to start the session
+    table.btn.btn-primary(role='presentation', border='0', cellpadding='0', cellspacing='0')
+        tbody
+            tr
+                td(align='left')
+                    table(role='presentation', border='0', cellpadding='0', cellspacing='0')
+                        tbody
+                            tr
+                                td
+                                    a(href=`${url}`, target='_blank') Join Your Session
+    

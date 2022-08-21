@@ -9,15 +9,18 @@ const reviewSchema = mongoose.Schema(
     },
     patient: {
       type: mongoose.Schema.ObjectId,
-      ref: 'Patient',
+      ref: 'User',
       required: [true, 'Please provide your id'],
     },
-    review_text: String,
+    review_text: {
+      type: String,
+      required: [true, 'Please provide the review conyent'],
+    },
     rating: {
       type: Number,
       min: 1,
       max: 5,
-      default: 5,
+      required: [true, 'rating is required'],
     },
   },
   {
@@ -25,8 +28,10 @@ const reviewSchema = mongoose.Schema(
   }
 )
 
-reviewSchema.pre(/^find/, function (next) {
-  this.populate('therapist', 'name image').populate('patient', 'username image')
+reviewSchema.post(/^find/, function (err, next) {
+  this.sort('-createdAt -rating')
+    .populate('patient', 'username name image')
+    .populate('therapist', 'name image')
   next()
 })
 
