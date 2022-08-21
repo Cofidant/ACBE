@@ -48,10 +48,11 @@ exports.getOne = (Model, populateOptions) =>
 exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
     const filter = req.filter ? req.filter : {}
-    const results = await new QueryHandler(
-      Model.find(filter).clone(),
-      req.query
-    ).process()
+    // const results = await new QueryHandler(
+    //   Model.find(filter).clone(),
+    //   req.query
+    // ).process()
+    const results = await Model.find(filter).clone()
     res
       .status(200)
       .json({ status: 'success', result: results.length, data: results })
