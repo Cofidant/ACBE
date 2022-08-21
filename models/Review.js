@@ -28,7 +28,7 @@ const reviewSchema = mongoose.Schema(
   }
 )
 
-reviewSchema.post(/^find/, function (err, next) {
+reviewSchema.pre(/^find/, function (next) {
   this.sort('-createdAt -rating')
     .populate('patient', 'username name image')
     .populate('therapist', 'name image')
