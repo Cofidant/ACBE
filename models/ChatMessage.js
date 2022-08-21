@@ -40,7 +40,6 @@ const chatMessageSchema = new mongoose.Schema(
     },
     postedBy: {
       type: mongoose.Schema.ObjectId,
-      ref: 'User',
       required: [true, 'Please provide your ID'],
     },
     date:{

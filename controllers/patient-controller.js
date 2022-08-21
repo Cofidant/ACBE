@@ -24,7 +24,6 @@ const getTherapistSuitabilty = (therapist, profile) => {
 
   return suitability
 }
-
 //find a therapist based on preference and standard max-activeSession
 const fetchTherapist = async (profile, maxActiveSession) => {
   //grab all therapists
