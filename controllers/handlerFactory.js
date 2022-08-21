@@ -1,7 +1,7 @@
 const QueryHandler = require('../utils/queryHandler')
 const catchAsync = require('../utils/catchAsync')
 const MyError = require('../utils/myError')
-const { NotFound, InternalServerError } = require('../errors')
+const { NotFound } = require('../errors')
 const { StatusCodes } = require('http-status-codes')
 
 const confirmExistence = (doc, docName) => {

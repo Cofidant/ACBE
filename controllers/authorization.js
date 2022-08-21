@@ -17,8 +17,12 @@ const register = catchAsync(async (req, res, next) => {
   const user = await Patient.create({ ...req.body })
 
   // send welcome email
-  // const url = `${req.protocol}://${req.get('host')}/me`
-  // await new Email(user, url).sendWelcome()
+  try {
+    const url = `${req.protocol}://${req.get('host')}/me`
+    await new Email(user, url).sendWelcome()
+  } catch (error) {
+    console.log('Error Sending Email >>>>', error.message)
+  }
 
   const token = user.createJWT()
   // hide password
