@@ -52,7 +52,6 @@ exports.getAll = (Model) =>
       Model.find(filter).clone(),
       req.query
     ).process()
-    //
     res
       .status(StatusCodes.OK)
       .json({ status: 'success', result: results.length, data: results })
