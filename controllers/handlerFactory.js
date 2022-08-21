@@ -53,7 +53,7 @@ exports.getAll = (Model) =>
     //   req.query
     // ).process()
     // const results = await processed
-    const results = await Model.find(filter)
+    const results = await Model.find(filter).clone()
     res
       .status(200)
       .json({ status: 'success', result: results.length, data: results })
