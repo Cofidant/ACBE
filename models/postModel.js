@@ -20,7 +20,7 @@ const postSchema = mongoose.Schema(
     summary: {
       type: String,
       maxlength: [250, 'Summary shouldnt be more than 250 characters'],
-      required: [true, 'Please provide a title for the post'],
+      required: [true, 'Please provide a summary for the post'],
     },
     tags: {
       type: [String],
@@ -34,10 +34,6 @@ const postSchema = mongoose.Schema(
     coverImg: {
       type: String,
       default: 'default.png',
-    },
-    dateCreated: {
-      type: Date,
-      default: Date.now(),
     },
     content: {
       type: String,
@@ -63,6 +59,7 @@ const postSchema = mongoose.Schema(
     ],
   },
   {
+    timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
