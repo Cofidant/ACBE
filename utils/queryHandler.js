@@ -1,6 +1,6 @@
 class QueryHandler {
   constructor(query, queryString, defaultSort) {
-    this.query = query
+    this.query = query.clone()
     this.queryString = queryString
     this.defaultSort = defaultSort
   }
@@ -60,7 +60,7 @@ class QueryHandler {
 
   process() {
     try {
-      return this.filter().sort().project().paginate().query
+      return this.filter().sort().project().paginate().query.clone()
     } catch (error) {
       console.log('Error Processing >>>', error)
     }
