@@ -59,7 +59,11 @@ class QueryHandler {
   }
 
   process() {
-    return this.filter().sort().project().paginate().query.clone()
+    try {
+      return this.filter().sort().project().paginate().query
+    } catch (error) {
+      console.log('Error Processing >>>', error)
+    }
   }
 }
 

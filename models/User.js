@@ -54,6 +54,10 @@ const UserSchema = new mongoose.Schema(
   }
 )
 
+// indexes
+UserSchema.index({ email: 1 }, { unique: true })
+
+// hooks
 UserSchema.pre('save', async function (next) {
   /* If password is not modified skip */
   if (!this.isModified('password')) {
@@ -65,6 +69,7 @@ UserSchema.pre('save', async function (next) {
   next()
 })
 
+// Methods
 UserSchema.methods.createJWT = function () {
   return jwt.sign(
     { userId: this._id, name: this.name, iat: Date.now() + 1000 },
