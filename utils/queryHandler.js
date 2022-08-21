@@ -1,8 +1,8 @@
 class QueryHandler {
-  constructor(query, queryString, defaultSort) {
-    this.query = query.clone()
+  constructor(Model, queryString, defaultSort) {
+    this.Model = Model
     this.queryString = queryString
-    this.defaultSort = defaultSort
+    this.defaultSort = defaultSort || '-createdAt _id'
   }
 
   filter() {
@@ -21,48 +21,55 @@ class QueryHandler {
         queryParam[field] = new RegExp('.*' + queryParam[field] + '.*', 'i')
     })
 
-    this.query = this.query.find(queryParam).clone()
-    return this
+    return queryParam
   }
 
   sort() {
     if (this.queryString.sort) {
-      const sortBy = this.queryString.sort.split(',').join(' ')
-      this.query = this.query.sort(sortBy).clone()
+      let sortBy = this.queryString.sort
+      if (sortBy instanceof Array) sortBy = sortBy.join(' ')
+      else sortBy = sortBy.split(',').join(' ')
+      return sortBy
     } else {
       //default sort
-      this.query = this.query.sort(this.defaultSort).clone()
+      return this.defaultSort
     }
-    return this
   }
 
   project() {
     if (this.queryString.fields) {
       const fields = this.queryString.fields.split(',').join(' ')
-      this.query = this.query.select(fields).clone()
+      return fields
     } else {
-      this.query = this.query.select('-__v').clone()
+      return '-__v'
     }
-    return this
   }
 
   paginate() {
     if (this.queryString.page || this.queryString.limit) {
       const page = this.queryString.page - 1 > 0 ? this.queryString.page - 1 : 0
       let limit = this.queryString.limit * 1 || 10
-      this.query = this.query
-        .skip(page * limit)
-        .limit(limit)
-        .clone()
+      return [page, limit]
     }
-    return this
+    return [0, 100]
   }
 
-  process() {
+  async process() {
+    const query = this.filter()
+    const fields = this.project()
+    const sort = this.sort()
+    const paginate = this.paginate()
+    let results = []
     try {
-      return this.filter().sort().project().paginate().query.clone()
+      results = await this.Model.find(query)
+        .select(fields)
+        .skip(paginate[0] * paginate[1])
+        .limit(paginate[1])
+        .sort(sort)
     } catch (error) {
-      console.log('Error Processing >>>', error)
+      console.log('Error Processing Query String >>>', error)
+    } finally {
+      return results
     }
   }
 }
