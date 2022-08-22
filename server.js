@@ -48,6 +48,7 @@ const subsRouter = require('./routes/subscriptionRoutes')
 const postRouter = require('./routes/postRoutes')
 const commentRouter = require('./routes/commentRoutes')
 const paymentRouter = require('./routes/paymentRoutes')
+const blacklistRouter = require('./routes/blacklistRoutes')
 app.use('/api/v1/auth', authRouters)
 app.use('/api/v1/therapists', therapistRouter)
 app.use('/api/v1/patients', patientRouter)
@@ -56,6 +57,7 @@ app.use('/api/v1/subscriptions', subsRouter)
 app.use('/api/v1/posts', postRouter)
 app.use('/api/v1/comments', commentRouter)
 app.use('/api/v1/payments', paymentRouter)
+app.use('/api/v1/blacklists', blacklistRouter)
 app.use(notFound)
 app.use(errorHandler)
 
@@ -77,7 +79,9 @@ const start = async () => {
     const httpServer = http.createServer(app)
     httpServer.listen(PORT, () => console.log(`Server started at port ${PORT}`))
     /** Create socket connection */
+
     useSocket(httpServer);
+
     // global.io = new Server(httpServer)
     // global.io.on('connection', WebSockets.connection)
   } catch (error) {

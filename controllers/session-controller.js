@@ -7,7 +7,4 @@ exports.getAllSessions = factoryController.getAll(Session)
 exports.createTherapySession = factoryController.createOne(Session)
 exports.getOneSession = factoryController.getOne(Session)
 
-Session.find().then(res =>{
-    console.log(res)
-})
 
