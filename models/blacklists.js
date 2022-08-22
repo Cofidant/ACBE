@@ -6,7 +6,9 @@ exports.Blacklist = mongoose.model("blacklist",new mongoose.Schema({
         ref:"therapist",
         required:true
     },
-    reports:[{type:mongoose.Schema.Types.ObjectId,ref:"user"}]
+    reports:{
+        type:[Object]
+    }
 
 },{
     timestamps:true

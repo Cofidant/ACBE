@@ -1,17 +1,16 @@
 const { Router } = require("express");
 const { getBlackLists, addToBlackList, getBlackList, removeFromBlackList } = require("../controllers/blacklist-controller");
 const { restrictRouteTo, authenticationMiddleware } = require("../middlewares/authentication");
-const Therapist = require("../models/Therapist");
 const blacklistRouter = Router();
 
 blacklistRouter.use(authenticationMiddleware)
-blacklistRouter.post("/",restrictRouteTo("patient"),addToBlackList)
+blacklistRouter.post("/:id",restrictRouteTo("patient"),addToBlackList)
 blacklistRouter.use(restrictRouteTo("admin"))
 blacklistRouter.route("/")
 .get(getBlackLists)
 
 blacklistRouter.route("/:id")
-.get(restrictRouteTo("admin"),getBlackList)
-.delete(restrictRouteTo("admin"),removeFromBlackList)
+.get(getBlackList)
+.delete(removeFromBlackList)
 
 module.exports = blacklistRouter;
