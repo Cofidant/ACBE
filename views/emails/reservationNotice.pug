@@ -1,0 +1,29 @@
+extends baseEmail
+
+block content
+    p Hi #{firstName},
+    p You have been successfully matched with the therapist below
+    div 
+        ul.therapist_info 
+            li
+                b Name:  
+                | #{therapist.name}
+            li
+                b Gender:  
+                | #{therapist.gender}
+            li
+                b About: 
+                | #{therapist.about}
+    p Follow the link below to subscrbe for a plan of your choice 
+    p Be aware that this reservation will atomatically be cancelled after 24 hrs
+    | without payment.
+    table.btn.btn-primary(role='presentation', border='0', cellpadding='0', cellspacing='0')
+        tbody
+            tr
+                td(align='left')
+                    table(role='presentation', border='0', cellpadding='0', cellspacing='0')
+                        tbody
+                            tr
+                                td
+                                    a(href=`${url}`, target='_blank') Proceed to Pay
+    
