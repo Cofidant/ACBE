@@ -7,6 +7,7 @@ const {
   forgotPassword,
   resetPassword,
   oauthRedirectCallback,
+  updatePassword,
 } = require('../controllers/authorization')
 
 router.post('/register', register)
@@ -21,7 +22,8 @@ router.get(
   passport.authenticate('google'),
   oauthRedirectCallback
 )
-router.patch('/reset-password/:token', resetPassword)
 router.post('/forgot-password', forgotPassword)
+router.post('/update-password', updatePassword)
+router.patch('/reset-password/:token', resetPassword)
 
 module.exports = router

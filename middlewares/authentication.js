@@ -5,12 +5,17 @@ const catchAsync = require('../utils/catchAsync')
 
 exports.authenticationMiddleware = catchAsync(async (req, res, next) => {
   const authHeader = req.headers.authorization
-
-  if (!authHeader || !authHeader.startsWith('Bearer')) {
-    throw new UnAuthenticated('No token provided')
+  let token
+  if (authHeader && authHeader.startsWith('Bearer')) {
+    token = authHeader.split(' ')[1]
+  } else if (req.cookies?.jwt) {
+    token = req.cookies.jwt
   }
-
-  const token = authHeader.split(' ')[1]
+  if (!token) {
+    return next(
+      new UnAuthenticated('You are not logged in, please log in to get access')
+    )
+  }
 
   try {
     const decoded = jwt.verify(token, process.env.jwtSecret)
@@ -23,7 +28,6 @@ exports.authenticationMiddleware = catchAsync(async (req, res, next) => {
         new UnAuthenticated('The user with this token no longer exists')
       )
     }
-
     // confirm if user doesnt change password after the token is issued
     if (user.changesPasswordAfter(iat)) {
       return next(

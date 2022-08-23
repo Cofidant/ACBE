@@ -12,6 +12,26 @@ const Patient = require('../models/Patient')
 const crypto = require('crypto')
 const Email = require('../utils/email')
 
+/**
+ *
+ * @param {Object} user The user that is created / updated
+ * @param {StatusCodes} code The http status code to send
+ * @param {String} message The prompt message
+ * @param {Response} res The http response object
+ */
+const createAndSendToken = (user, code, message, res) => {
+  const token = user.createJWT()
+  res.cookie('jwt', token, {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+  })
+  user.password = undefined
+  res.status(code).json({ status: 'success', message, token, user })
+}
+
 // will only Create a Patient....
 const register = catchAsync(async (req, res, next) => {
   const user = await Patient.create({ ...req.body })
@@ -24,16 +44,7 @@ const register = catchAsync(async (req, res, next) => {
     console.log('Error Sending Email >>>>', error.message)
   }
 
-  const token = user.createJWT()
-  res.cookie('jwt', token)
-  // hide password
-  user.password = undefined
-  res.status(StatusCodes.CREATED).json({
-    status: 'success',
-    message: 'Registered Successfully',
-    user,
-    token,
-  })
+  createAndSendToken(user, StatusCodes.CREATED, 'Registered Successfully', res)
 })
 
 const login = catchAsync(async (req, res, next) => {
@@ -52,13 +63,7 @@ const login = catchAsync(async (req, res, next) => {
   if (!isPasswordCorrect) {
     throw new UnAuthenticated('Invalid Credentials')
   }
-  const token = user.createJWT()
-  res.cookie('jwt', token)
-  // hide password
-  user.password = undefined
-  res
-    .status(StatusCodes.OK)
-    .json({ status: 'success', message: 'login successfully', user, token })
+  createAndSendToken(user, StatusCodes.OK, 'Login Successfully', res)
 })
 
 const updatePassword = catchAsync(async (req, res, next) => {
@@ -72,9 +77,7 @@ const updatePassword = catchAsync(async (req, res, next) => {
   user.password = password
   await user.save()
 
-  const token = user.createJWT()
-  res.cookie('jwt', token)
-  res.status(StatusCodes.OK).json({ status: 'success', data: user, token })
+  createAndSendToken(user, StatusCodes.OK, 'Password Updated Successfully', res)
 })
 
 const forgotPassword = catchAsync(async (req, res, next) => {
@@ -127,22 +130,18 @@ const resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetToken = undefined
   user.resetTokenExpiresAt = undefined
   await user.save()
-
-  const token = user.createJWT()
-  res.cookie('jwt', token)
-  res.status(StatusCodes.CREATED).json({
-    status: 'success',
-    message: 'password reset successfully',
+  createAndSendToken(
     user,
-    token,
-  })
+    StatusCodes.OK,
+    'Password Resetted Successfully',
+    res
+  )
 })
 
 const oauthRedirectCallback = catchAsync(async (req, res, next) => {
-  console.log('Redirected User >>>', req.user)
   let user
   let message = 'Login successfully!'
-
+  let code = StatusCodes.OK
   // Find user
   user = await User.findOne({ email: req.user._json.email })
   if (!user) {
@@ -155,16 +154,9 @@ const oauthRedirectCallback = catchAsync(async (req, res, next) => {
       image: req.user._json.picture,
     })
     message = 'Signup Successfully'
+    code = StatusCodes.CREATED
   }
-
-  const token = user.createJWT()
-  res.cookie('jwt', token)
-  res.status(StatusCodes.CREATED).json({
-    status: 'success',
-    message,
-    user,
-    token,
-  })
+  createAndSendToken(user, code, message, res)
 })
 
 module.exports = {
