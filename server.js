@@ -6,7 +6,10 @@ const cors = require('cors')
 const xss = require('xss-clean')
 const expressRateLmt = require('express-rate-limit')
 const express = require('express')
+const session = require('express-session')
+const cookieParser = require('cookie-parser')
 const list_end_points = require('list_end_points')
+const passport = require('./middlewares/passport')
 const connectDB = require('./config/theDatabase')
 const app = express()
 const http = require('http')
@@ -21,6 +24,17 @@ const { useSocket } = require('./controllers/socket')
 
 // INITIALIZE MIDDLEWARE
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser())
+app.use(
+  session({
+    secret: process.env.jwtSecret,
+    resave: false,
+    saveUninitialized: false,
+  })
+)
+app.use(passport.initialize())
+app.use(passport.session())
 app.use(helmet())
 app.use(cors())
 app.use(xss())
@@ -86,7 +100,7 @@ const start = async () => {
     useSocket(httpServer)
     httpServer.listen(PORT, () => console.log(`Server started at port ${PORT}`))
     /** Create socket connection */
-    useSocket(httpServer);
+    useSocket(httpServer)
     // global.io = new Server(httpServer)
     // global.io.on('connection', WebSockets.connection)
   } catch (error) {

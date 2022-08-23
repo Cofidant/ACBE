@@ -25,6 +25,7 @@ const register = catchAsync(async (req, res, next) => {
   }
 
   const token = user.createJWT()
+  res.cookie('jwt', token)
   // hide password
   user.password = undefined
   res.status(StatusCodes.CREATED).json({
@@ -52,6 +53,7 @@ const login = catchAsync(async (req, res, next) => {
     throw new UnAuthenticated('Invalid Credentials')
   }
   const token = user.createJWT()
+  res.cookie('jwt', token)
   // hide password
   user.password = undefined
   res
@@ -71,6 +73,7 @@ const updatePassword = catchAsync(async (req, res, next) => {
   await user.save()
 
   const token = user.createJWT()
+  res.cookie('jwt', token)
   res.status(StatusCodes.OK).json({ status: 'success', data: user, token })
 })
 
@@ -126,9 +129,39 @@ const resetPassword = catchAsync(async (req, res, next) => {
   await user.save()
 
   const token = user.createJWT()
+  res.cookie('jwt', token)
   res.status(StatusCodes.CREATED).json({
     status: 'success',
     message: 'password reset successfully',
+    user,
+    token,
+  })
+})
+
+const oauthRedirectCallback = catchAsync(async (req, res, next) => {
+  console.log('Redirected User >>>', req.user)
+  let user
+  let message = 'Login successfully!'
+
+  // Find user
+  user = await User.findOne({ email: req.user._json.email })
+  if (!user) {
+    // create user as a Patient
+    user = await Patient.create({
+      email: req.user._json.email,
+      name: req.user._json.name,
+      provider: req.user.provider,
+      password: req.user.id,
+      image: req.user._json.picture,
+    })
+    message = 'Signup Successfully'
+  }
+
+  const token = user.createJWT()
+  res.cookie('jwt', token)
+  res.status(StatusCodes.CREATED).json({
+    status: 'success',
+    message,
     user,
     token,
   })
@@ -140,4 +173,5 @@ module.exports = {
   updatePassword,
   resetPassword,
   forgotPassword,
+  oauthRedirectCallback,
 }

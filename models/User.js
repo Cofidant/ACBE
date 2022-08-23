@@ -20,6 +20,7 @@ const UserSchema = new mongoose.Schema(
       ],
       unique: [true, 'Email already Exist'],
     },
+    image: String,
     bookmarks: [
       {
         type: mongoose.Schema.ObjectId,
@@ -30,7 +31,10 @@ const UserSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-
+    provider: {
+      type: String,
+      default: 'default',
+    },
     password: {
       type: String,
       required: [true, 'Enter your Password'],

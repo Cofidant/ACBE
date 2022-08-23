@@ -6,7 +6,6 @@ const Session = require('../models/Session')
 const factoryController = require('./handlerFactory')
 const { BadRequest } = require('../errors')
 const SubscriptionPlan = require('../models/SubscriptionPlan')
-const { initializePayment } = require('../utils/paystack')
 const Email = require('../utils/email')
 
 // create a search weight Function
@@ -68,7 +67,7 @@ exports.updateMe = factoryController.updateMe(Patient)
 module.exports.getTherapy = catchAsync(async (req, res, next) => {
   //get available therapist
   const potentialTherapists = await fetchTherapist(
-    req.body.profile,
+    req.body.profile || req.body,
     process.env.MAXSESSION || 10
   )
   res.status(StatusCodes.OK).json({
@@ -102,7 +101,7 @@ module.exports.selectTherapy = catchAsync(async (req, res, next) => {
   if (!therapist || !subPlan) {
     return next(new BadRequest('Invalid therapistID or subscriptionPlan'))
   }
-z
+  z
   // Create The Session with paymentStatus pending
   const newSession = await Session.create({
     patient: req.user._id,
@@ -118,8 +117,11 @@ z
     (url = 'https://anonymous-confidant.com')
   ).sendReservationNotice(therapist)
 
-if(!newSession) return res.status(500).json({message:"server error, could not create session"});
- return res.status(StatusCodes.CREATED).json({
+  if (!newSession)
+    return res
+      .status(500)
+      .json({ message: 'server error, could not create session' })
+  return res.status(StatusCodes.CREATED).json({
     status: 'success',
     message: 'session created successfully',
     data: newSession,
