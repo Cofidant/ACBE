@@ -17,8 +17,9 @@ const {
 } = require('../controllers/patient-controller')
 const storiesRouter = require('./storiesRoutes')
 const chatRouter = require('./chatRoutes')
-const { getAllSessions } = require('../controllers/session-controller')
 const reviewRouter = require('./reviewRoutes')
+const { getMySessions } = require('../controllers/session-controller')
+
 
 const patientRouter = require('express').Router()
 
@@ -39,7 +40,7 @@ patientRouter.route('/me').get(getMe).patch(updateMe)
 patientRouter.patch('/update-password', updatePassword)
 patientRouter.post('/get-therapy', getTherapy)
 patientRouter.post('/select-therapist', selectTherapy)
-patientRouter.get('/sessions', patientFilter, getAllSessions)
+patientRouter.get('/my-sessions', getMySessions)
 
 patientRouter
   .route('/:patientID')

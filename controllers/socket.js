@@ -35,7 +35,6 @@ module.exports.useSocket = (server) =>{
         
       })
       })
-     console.log("initialized")
     })
 
     const trackSession = (sessionID) =>{
@@ -61,17 +60,12 @@ module.exports.useSocket = (server) =>{
     }
     socket.on("message",(data)=>{
       const {sessionID, message,postedBy } = data;
-      console.log(trackSocket(socket.id),{
-        tracker,
-        id:socket.id
-      })
-      emmitmessage(data)
-        console.log("message emmited")
-        Chat.create({sessionID,message,postedBy}).then(res =>{
-          console.log("msg created" + res)
-        }).catch(err =>{
-          console.log("failed" + err)
-        })
+      emmitmessage(data);
+      try{
+        Chat.create({sessionID,message,postedBy})
+      }catch(err){
+        console.log(err)
+      }
     })
     socket.on("disconnect",()=>{
       if(trackSocket(socket.id)){

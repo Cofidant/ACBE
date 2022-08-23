@@ -1,5 +1,6 @@
 const express = require('express')
 const { updatePassword } = require('../controllers/authorization')
+const { getMySessions } = require('../controllers/session-controller')
 const {
   getTherapist,
   getAllTherapists,
@@ -39,7 +40,7 @@ therapistRouter
   .patch(restrictRouteTo('admin'), updateTherapist)
   .delete(restrictRouteTo('admin'), deleteTherapist)
   .get(getTherapist)
-
+therapistRouter.get("/my-sessions",getMySessions)
 therapistRouter.get('/me/sessions', getAllMySessions)
 therapistRouter.route('/me/sessions/:sessionID/notes').post(addSessionNotes)
 therapistRouter.use('/me/sessions/:sessionID/chats/', chatRouter)
