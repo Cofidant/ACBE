@@ -101,7 +101,7 @@ module.exports.selectTherapy = catchAsync(async (req, res, next) => {
   if (!therapist || !subPlan) {
     return next(new BadRequest('Invalid therapistID or subscriptionPlan'))
   }
-
+z
   // Create The Session with paymentStatus pending
   const newSession = await Session.create({
     patient: req.user._id,
@@ -110,8 +110,8 @@ module.exports.selectTherapy = catchAsync(async (req, res, next) => {
     paymentStatus: 'pending',
     paymentRef: '',
   })
-
-  res.status(StatusCodes.CREATED).json({
+if(!newSession) return res.status(500).json({message:"server error, could not create session"});
+ return res.status(StatusCodes.CREATED).json({
     status: 'success',
     message: 'session created successfully',
     data: newSession,

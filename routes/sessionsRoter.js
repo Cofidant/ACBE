@@ -1,5 +1,6 @@
 const express = require('express')
 const { getAllSessions } = require('../controllers/session-controller')
+
 const {
   authenticationMiddleware,
   restrictRouteTo,
