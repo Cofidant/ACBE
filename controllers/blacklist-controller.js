@@ -41,5 +41,3 @@ module.exports.addToBlackList = async(req,res) =>{
         }
     },{new:true})) 
 }
-
-Therapist.find().then(res =>{console.log(res)})
