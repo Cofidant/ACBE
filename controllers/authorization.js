@@ -153,6 +153,13 @@ const oauthRedirectCallback = catchAsync(async (req, res, next) => {
       password: req.user.id,
       image: req.user._json.picture,
     })
+    // Send Welcome Email
+    try {
+      const url = `${req.protocol}://${req.get('host')}/me`
+      await new Email(user, url).sendWelcome()
+    } catch (error) {
+      console.log('Error Sending Email >>>>', error.message)
+    }
     message = 'Signup Successfully'
     code = StatusCodes.CREATED
   }
