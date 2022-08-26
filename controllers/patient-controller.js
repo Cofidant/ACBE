@@ -95,7 +95,6 @@ module.exports.getSessions = catchAsync(async (req, res, next) => {
 //req.body includes selected therapists id, contract period (subscriptionPlan)
 module.exports.selectTherapy = catchAsync(async (req, res, next) => {
   const { therapistID, subscriptionPlan } = req.body
-
   const therapist = await Therapist.findById(therapistID)
   const subPlan = await SubscriptionPlan.findById(subscriptionPlan)
   if (!therapist || !subPlan) {

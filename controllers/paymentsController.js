@@ -53,7 +53,7 @@ exports.paystackInitialize = catchAsync(async (req, res, next) => {
         console.log(err)
       })
 
-    res.status(200).json(result.data)
+    return res.status(200).json(result.data)
     // res.redirect(result.data.authorization_url)
   })
 })

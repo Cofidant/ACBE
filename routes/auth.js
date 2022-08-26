@@ -8,10 +8,13 @@ const {
   resetPassword,
   oauthRedirectCallback,
   updatePassword,
+  logout,
 } = require('../controllers/authorization')
+const { authenticationMiddleware } = require('../middlewares/authentication')
 
 router.post('/register', register)
 router.post('/login', login)
+router.get('/logout',authenticationMiddleware,logout)
 // Google Login
 router.get(
   '/google',

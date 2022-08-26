@@ -11,6 +11,7 @@ const Patient = require('../models/Patient')
 // const { promisify } = require('util')
 const crypto = require('crypto')
 const Email = require('../utils/email')
+const {validateId} = require("../utils/myUtills")
 
 /**
  *
@@ -166,6 +167,12 @@ const oauthRedirectCallback = catchAsync(async (req, res, next) => {
   createAndSendToken(user, code, message, res)
 })
 
+const logout = (req,res) =>{
+  if(!req.user._id || !validateId(req.user._id)) return res.status(400).json({message:"this user is not logged in"})
+   res.cookie("jwt",{},{expires:new Date()})
+   return res.status(200).json({message:"logged out"})
+}
+
 module.exports = {
   register,
   login,
@@ -173,4 +180,5 @@ module.exports = {
   resetPassword,
   forgotPassword,
   oauthRedirectCallback,
+  logout,
 }
