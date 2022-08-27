@@ -30,21 +30,19 @@ const createAndSendToken = (user, code, message, res) => {
     httpOnly: true,
   })
   user.password = undefined
-  res.status(code).json({ status: 'success', message, token, user })
+  res.set("authorization",token)
+  res.status(code).json({ status: 'success', message, user})
 }
 
 // will only Create a Patient....
 const register = catchAsync(async (req, res, next) => {
-  const user = await Patient.create({ ...req.body })
-
-  // send welcome email
+  const user = await Patient.create({ ...req.body })  // send welcome email
   try {
     const url = `${req.protocol}://${req.get('host')}/me`
     await new Email(user, url).sendWelcome()
   } catch (error) {
     console.log('Error Sending Email >>>>', error.message)
   }
-
   createAndSendToken(user, StatusCodes.CREATED, 'Registered Successfully', res)
 })
 

@@ -26,4 +26,10 @@ exports.getMySessions = async(req,res) =>{
     if(!sessions.length) return res.status(StatusCodes.OK).json({message:"you have no active sessions",data:sessions});
     return res.status(StatusCodes.OK).json(sessions)
 }
-
+// User.find().then(res =>{console.log(res)})
+//Session.create({therapist:"62ff38ef570848aae4c91e9f",patient:"6308dc04859acf5b8f9a3cb1"}).then(res =>{console.log(res)})
+//{therapist:"62ff38ef570848aae4c91e9f",patient:"6308dc04859acf5b8f9a3cb1"}
+//sessionID:"6308f65d093e4944a0410bb0"
+// Session.findById("6308f65d093e4944a0410bb0").then(res=>{
+//     console.log(res)
+// })

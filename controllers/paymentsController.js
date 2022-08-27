@@ -4,20 +4,17 @@ const Session = require('../models/Session')
 const SubscriptionPlan = require('../models/SubscriptionPlan')
 const catchAsync = require('../utils/catchAsync')
 const Email = require('../utils/email')
-const { getEndDate } = require('../utils/myUtills')
+const { getEndDate, validateId } = require('../utils/myUtills')
 const paystack = require('../utils/paystack')
 
 exports.paymentMiddleware = catchAsync(async (req, res, next) => {
-  const session = await Session.findById(req.body.sessionID).populate(
-    'subscriptionPlan'
-  )
+  const {sessionID,subscriptionPlan} = req.body;
+ if(!validateId(sessionID)) return res.status(401).json({message:"invalid session id"})
+  const session = await Session.findById(sessionID).populate('subscriptionPlan')
   if (!session) return next(new BadRequest('Invalid Session Id'))
-  if (session.paymentStatus === 'paid')
-    return next(new BadRequest('Session is already paid!'))
-
+  if (session.paymentStatus === 'paid') return next(new BadRequest('Session is already paid!'))
   const { email, _id, username } = session.patient
-  const { price } = session.subscriptionPlan
-
+  const { price } = subscriptionPlan
   const paymentData = {
     email,
     amount: price * 100 * (process.env.DOLLAR_RATE || 600),
@@ -30,6 +27,7 @@ exports.paymentMiddleware = catchAsync(async (req, res, next) => {
   }
   req.paymentData = paymentData
   req.sessionPaid = session
+  req.subscriptionPlan = subscriptionPlan
   next()
 })
 
@@ -45,10 +43,10 @@ exports.paystackInitialize = catchAsync(async (req, res, next) => {
       .then(async (updated) => {
         // Send Payment Successfull Email
         const populated = await Session.findById(updated._id)
-          .populate('subscriptionPlan')
           .populate('patient', 'name email username')
-        await new Email(populated.patient).sendPaymentSuccessful(populated)
+        await new Email(populated.patient).sendPaymentSuccessful({...populated, subscriptionPlan:req.subscriptionPlan})
       })
+
       .catch((err) => {
         console.log(err)
       })

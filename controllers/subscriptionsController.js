@@ -27,3 +27,9 @@ exports.deleteSubPlan = factoryController.deleteOne(SubscriptionPlan)
 // ])
 //   .then((res) => console.log(res))
 //   .catch((err) => console.log(err))
+// SubscriptionPlan.find().then(res =>{
+//     res.map(item =>{ SubscriptionPlan.findOneAndRemove(item).then(()=>{console.log("deleted")})})
+   
+// })
+
+
