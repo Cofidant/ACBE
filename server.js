@@ -15,13 +15,12 @@ const PORT = process.env.PORT || 9809
 const start = async () => {
   try {
     // connect to database
-
+    require("./startup/db")
     /* create a http server */
     const httpServer = http.createServer(app)
     /** Create socket connection **/
     useSocket(httpServer)
     httpServer.listen(PORT, () => log("info",`connected to port ${PORT}`))
-    useSocket(httpServer)
   } catch (error) {
     log("error",error)
   }
