@@ -8,10 +8,8 @@ const connectDB = async (url) => {
       // useFindAndModify: false,
       useUnifiedTopology: true,
     })
-    console.log('mongodb connected')
   } catch (err) {
-    console.error(err.message)
-    process.exit(1)
+    throw new Error(err)
   }
 }
 

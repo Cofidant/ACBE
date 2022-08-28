@@ -10,6 +10,7 @@
 
 # production
 /build
+error-logs.log
 
 # misc
 .DS_Store
