@@ -8,13 +8,23 @@ const { getEndDate, validateId } = require('../utils/myUtills')
 const paystack = require('../utils/paystack')
 
 exports.paymentMiddleware = catchAsync(async (req, res, next) => {
-  const {sessionID,subscriptionPlan} = req.body;
- if(!validateId(sessionID)) return res.status(401).json({message:"invalid session id"})
+  const sessionID =
+    req.body.sessionID || req.query.sessionID || req.params.sessionID
+
+  if (!validateId(sessionID))
+    return res.status(401).json({ message: 'invalid session id' })
+
+  // Get The Session
   const session = await Session.findById(sessionID).populate('subscriptionPlan')
   if (!session) return next(new BadRequest('Invalid Session Id'))
-  if (session.paymentStatus === 'paid') return next(new BadRequest('Session is already paid!'))
+
+  // Check If Session is alredy paid
+  if (session.paymentStatus === 'paid')
+    return next(new BadRequest('Session is already paid!'))
+
   const { email, _id, username } = session.patient
-  const { price } = subscriptionPlan
+  let { price } = session.subscriptionPlan
+
   const paymentData = {
     email,
     amount: price * 100 * (process.env.DOLLAR_RATE || 600),
@@ -33,7 +43,6 @@ exports.paymentMiddleware = catchAsync(async (req, res, next) => {
 
 exports.paystackInitialize = catchAsync(async (req, res, next) => {
   const paymentData = req.paymentData
-
   await paystack.initializePayment(paymentData, (result) => {
     // Update payment reference
     Session.findByIdAndUpdate(req.sessionPaid._id, {
@@ -41,10 +50,15 @@ exports.paystackInitialize = catchAsync(async (req, res, next) => {
       paymentMethod: 'paystack',
     })
       .then(async (updated) => {
-        // Send Payment Successfull Email
-        const populated = await Session.findById(updated._id)
-          .populate('patient', 'name email username')
-        await new Email(populated.patient).sendPaymentSuccessful({...populated, subscriptionPlan:req.subscriptionPlan})
+        // Send Payment Initialized Email
+        const populated = await Session.findById(updated._id).populate(
+          'patient',
+          'name email username'
+        )
+        await new Email(populated.patient).sendPaymentSuccessful({
+          ...populated.toJSON(),
+          subscriptionPlan: req.subscriptionPlan,
+        })
       })
 
       .catch((err) => {
@@ -61,7 +75,8 @@ exports.paystackVerify = catchAsync(async (req, res, next) => {
   const session = await Session.findOne({
     paymentRef: ref,
     paymentMethod: 'paystack',
-  })
+  }).populate('subscriptionPlan')
+
   if (!ref) return next(new BadRequest('Please provide the payment reference'))
   // Check if payment is already verified
   if (session.paymentStatus === 'paid')

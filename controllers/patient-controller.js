@@ -4,7 +4,7 @@ const catchAsync = require('../utils/catchAsync')
 const { StatusCodes } = require('http-status-codes')
 const Session = require('../models/Session')
 const factoryController = require('./handlerFactory')
-const { BadRequest } = require('../errors')
+const { BadRequest, InternalServerError } = require('../errors')
 const SubscriptionPlan = require('../models/SubscriptionPlan')
 const Email = require('../utils/email')
 
@@ -111,15 +111,15 @@ module.exports.selectTherapy = catchAsync(async (req, res, next) => {
   })
 
   // Send Notification Email
-  await new Email(
-    req.user,
-    (url = 'https://anonymous-confidant.com')
-  ).sendReservationNotice(therapist)
+  new Email(req.user, (url = 'https://anonymous-confidant.com'))
+    .sendReservationNotice(therapist)
+    .catch((err) => console.log('Error sending Email >>>', err.message))
 
   if (!newSession)
-    return res
-      .status(500)
-      .json({ message: 'server error, could not create session' })
+    return next(
+      new InternalServerError('server error, could not create session')
+    )
+
   return res.status(StatusCodes.CREATED).json({
     status: 'success',
     message: 'session created successfully',
@@ -169,10 +169,12 @@ exports.bookAppointment = catchAsync(async (req, res, next) => {
   })
 
   // send email notification to therapist
-  await new Email(req.user).sendAppointmentNotification({
-    start_time,
-    status: 'pending',
-  })
+  new Email(req.user)
+    .sendAppointmentNotification({
+      start_time,
+      status: 'pending',
+    })
+    .catch((err) => console.log('Err sending email >>>', err.message))
   res
     .status(StatusCodes.CREATED)
     .json({ status: 'success', message: 'appointment requested' })
@@ -180,7 +182,7 @@ exports.bookAppointment = catchAsync(async (req, res, next) => {
 
 exports.patientFilter = (req, res, next) => {
   req.filter = { patient: req.user._id }
-  req.query = { fields: '-notes' }
+  req.query.fields = req.query.fields ? `${req.query.fields},-notes` : '-notes'
   req.body.patient = req.user._id
   next()
 }
