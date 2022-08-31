@@ -190,3 +190,8 @@ exports.getAllPatients = factoryController.getAll(Patient)
 exports.getPatient = factoryController.getOne(Patient)
 exports.deletePatient = factoryController.deleteOne(Patient)
 exports.createPatient = factoryController.createOne(Patient)
+
+// Patient.updateOne(
+//   { email: 'user1@anonymous.api' },
+//   { email: 'mahadiabuhuraira@gmail.com' }
+// ).then((res) => console.log(res))

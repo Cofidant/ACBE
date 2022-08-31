@@ -1,7 +1,6 @@
 const { StatusCodes } = require('http-status-codes')
 const { BadRequest } = require('../errors')
 const Session = require('../models/Session')
-const SubscriptionPlan = require('../models/SubscriptionPlan')
 const catchAsync = require('../utils/catchAsync')
 const Email = require('../utils/email')
 const { getEndDate, validateId } = require('../utils/myUtills')
@@ -34,10 +33,12 @@ exports.paymentMiddleware = catchAsync(async (req, res, next) => {
   paymentData.metadata = {
     username,
     patientID: _id,
+    sessionID: session._id,
+    therapistID: session.therapist._id,
+    subscriptionPlan: session.subscriptionPlan._id,
   }
   req.paymentData = paymentData
   req.sessionPaid = session
-  req.subscriptionPlan = subscriptionPlan
   next()
 })
 
@@ -46,69 +47,66 @@ exports.paystackInitialize = catchAsync(async (req, res, next) => {
   await paystack.initializePayment(paymentData, (result) => {
     // Update payment reference
     Session.findByIdAndUpdate(req.sessionPaid._id, {
-      paymentRef: result.reference,
+      paymentRef: result.data.reference,
       paymentMethod: 'paystack',
-    })
-      .then(async (updated) => {
-        // Send Payment Initialized Email
-        const populated = await Session.findById(updated._id).populate(
-          'patient',
-          'name email username'
-        )
-        await new Email(populated.patient).sendPaymentSuccessful({
-          ...populated.toJSON(),
-          subscriptionPlan: req.subscriptionPlan,
-        })
-      })
+    }).catch((err) => console.log('Error updating reference >>>', err.message))
 
-      .catch((err) => {
-        console.log(err)
-      })
-
-    return res.status(200).json(result.data)
-    // res.redirect(result.data.authorization_url)
+    return res.status(StatusCodes.OK).json(result.data)
+    // res.status(301).redirect(result.data.authorization_url)
   })
 })
 
 exports.paystackVerify = catchAsync(async (req, res, next) => {
   const ref = req.query.reference
-  const session = await Session.findOne({
-    paymentRef: ref,
-    paymentMethod: 'paystack',
-  }).populate('subscriptionPlan')
 
   if (!ref) return next(new BadRequest('Please provide the payment reference'))
-  // Check if payment is already verified
-  if (session.paymentStatus === 'paid')
-    return res
-      .status(StatusCodes.OK)
-      .json({ status: 'success', message: 'payment already verified' })
 
-  await paystack.verifyPayment(ref, (result) => {
-    const { customer, reference, amount, metadata } = result.data
-    //do some updates in the database
-    Session.findByIdAndUpdate(
-      session._id,
-      {
-        paymentStatus: 'paid',
-        paymentMethod: 'paystack',
-        subscribedDate: Date.now() - 1000,
-        expiryDate: getEndDate(session?.subscriptionPlan?.duration / 40),
-        hoursRemaining: session?.subscriptionPlan?.duration,
-      },
-      { new: true }
-    ).then((updatedSession) => {
-      // Send Payment Successfull Email
-      new Email(req.user)
-        .sendPaymentSuccessful(updatedSession)
-        .then(() => {})
-        .catch((err) => console.log('Err Sending Email >>>\n' + err.message))
-      // Yet to be Implemented
-      res.status(200).json({
-        status: 'success',
-        message: 'Payment successful!',
-        data: { customer, reference, amount, metadata },
-      })
-    })
+  const result = await paystack.verifyPayment(ref)
+  const { customer, reference, amount, metadata, status } = result.data
+
+  // check if transaction is not paid
+  if (status !== 'success') {
+    return res
+      .status(200)
+      .json({ status: 'success', message: `Payment is ${status}` })
+  }
+
+  // Transaction is paid Do the necessary Updates
+
+  // Find The Reserved Session Paid for
+  const session = await Session.findOne({
+    _id: metadata.sessionID,
+    patient: metadata.patientID,
+  }).populate('subscriptionPlan')
+
+  // Confirm if reservation is still there
+  if (!session) {
+    // sesion has exceed 24hrs and consequently got deleted
+    // Decide on a remedy option
+    // Check if the therapist is still available and create a session
+    // Or reserve the payment and ask the user to submit a new request for a new therapist
+    // Create a session for that....
+  }
+
+  // Update details of reservation to paid
+  session.paymentStatus = 'paid'
+  session.paymentMethod = 'paystack'
+  session.subscribedDate = Date.now() - 1000
+  session.expiryDate = getEndDate(session.subscriptionPlan?.duration / 40)
+  session.hoursRemaining = session.subscriptionPlan?.duration
+  await session.save()
+
+  // Send Payment Successfull
+  new Email(req.user)
+    .sendPaymentSuccessful(session.toJSON())
+    .then(() => {})
+    .catch((err) => console.log('Err Sending Email >>>' + err.message))
+
+  // Redirect to Patient Dashboard
+  // For now temporary send result via json
+  res.status(200).json({
+    status: 'success',
+    message: `Payment is ${status}`,
+    data: { customer, reference, amount, metadata, status },
   })
 })

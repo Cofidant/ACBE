@@ -11,7 +11,7 @@ const Patient = require('../models/Patient')
 // const { promisify } = require('util')
 const crypto = require('crypto')
 const Email = require('../utils/email')
-const {validateId} = require("../utils/myUtills")
+const { validateId } = require('../utils/myUtills')
 
 /**
  *
@@ -30,19 +30,17 @@ const createAndSendToken = (user, code, message, res) => {
     httpOnly: true,
   })
   user.password = undefined
-  res.set("authorization",token)
-  res.status(code).json({ status: 'success', message, user})
+  res.set('authorization', token)
+  res.status(code).json({ status: 'success', message, user })
 }
 
 // will only Create a Patient....
 const register = catchAsync(async (req, res, next) => {
-  const user = await Patient.create({ ...req.body })  // send welcome email
-  try {
-    const url = `${req.protocol}://${req.get('host')}/me`
-    await new Email(user, url).sendWelcome()
-  } catch (error) {
-    console.log('Error Sending Email >>>>', error.message)
-  }
+  const user = await Patient.create({ ...req.body }) // send welcome email
+  new Email(user)
+    .sendWelcome()
+    .catch((err) => console.log('Error Sending Email >>', err))
+
   createAndSendToken(user, StatusCodes.CREATED, 'Registered Successfully', res)
 })
 
@@ -165,10 +163,11 @@ const oauthRedirectCallback = catchAsync(async (req, res, next) => {
   createAndSendToken(user, code, message, res)
 })
 
-const logout = (req,res) =>{
-  if(!req.user._id || !validateId(req.user._id)) return res.status(400).json({message:"this user is not logged in"})
-   res.cookie("jwt",{},{expires:new Date()})
-   return res.status(200).json({message:"logged out"})
+const logout = (req, res) => {
+  if (!req.user._id || !validateId(req.user._id))
+    return res.status(400).json({ message: 'this user is not logged in' })
+  res.cookie('jwt', {}, { expires: new Date() })
+  return res.status(200).json({ message: 'logged out' })
 }
 
 module.exports = {

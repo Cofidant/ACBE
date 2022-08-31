@@ -1,4 +1,4 @@
-const mongoose  = require("mongoose")
+const mongoose = require('mongoose')
 
 exports.getDuration = (dateCreated) => {
   const timeDiff = Date.now() - dateCreated
@@ -21,8 +21,8 @@ exports.getDuration = (dateCreated) => {
   return '0 seconds ago'
 }
 exports.getEndDate = (month) => {
-  return new Date(new Date().getTime() + duration * 30 * 24 * 60 * 60 * 1000)
+  return new Date(new Date().getTime() + month * 30 * 24 * 60 * 60 * 1000)
 }
-exports.validateId = (id) =>{
+exports.validateId = (id) => {
   return mongoose.Types.ObjectId.isValid(id)
 }
