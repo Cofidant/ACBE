@@ -13,12 +13,19 @@ module.exports = class Email {
   }
 
   myCreateTransport() {
-    if (process.env.NODE_ENV === 'production' && false) {
+    if (process.env.NODE_ENV === 'production') {
       return nodemailer.createTransport({
-        service: 'SendGrid',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
         auth: {
-          user: process.env.SENDGRID_USERNAME,
-          pass: process.env.SENDGRID_PASSWORD,
+          type: 'OAuth2',
+          user: process.env.GMAIL_ADDRESS,
+          clientId: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+          accessToken: process.env.GMAIL_ACCESS_TOKEN,
+          expires: Number.parseInt(process.env.GMAIL_EXPIRY_DATE, 10),
         },
       })
     }

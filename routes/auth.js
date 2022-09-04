@@ -14,7 +14,7 @@ const { authenticationMiddleware } = require('../middlewares/authentication')
 
 router.post('/register', register)
 router.post('/login', login)
-router.get('/logout',authenticationMiddleware,logout)
+router.get('/logout', authenticationMiddleware, logout)
 // Google Login
 router.get(
   '/google',
@@ -25,6 +25,11 @@ router.get(
   passport.authenticate('google'),
   oauthRedirectCallback
 )
+
+router.get('/gmailRedirect', (req, res) => {
+  console.log(req.query)
+  res.end('This is sample')
+})
 router.post('/forgot-password', forgotPassword)
 router.post('/update-password', updatePassword)
 router.patch('/reset-password/:token', resetPassword)

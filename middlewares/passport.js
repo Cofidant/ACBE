@@ -8,7 +8,11 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: `http://127.0.0.1:9809/api/v1/auth/googleRedirect`,
+      callbackURL: `${
+        process.env.NODE_ENV === 'development'
+          ? 'http://127.0.0.1:9890'
+          : 'https://anonymous-confidant.herokuapp.com'
+      }/api/v1/auth/googleRedirect`,
     },
     function (accessToken, refreshToken, profile, done) {
       return done(null, profile)

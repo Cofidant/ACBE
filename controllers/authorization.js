@@ -31,7 +31,7 @@ const createAndSendToken = (user, code, message, res) => {
   })
   user.password = undefined
   res.set('authorization', token)
-  res.status(code).json({ status: 'success', message, user })
+  res.status(code).json({ status: 'success', message, user, token })
 }
 
 // will only Create a Patient....
