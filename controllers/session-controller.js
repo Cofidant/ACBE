@@ -40,6 +40,7 @@ exports.getMySessions = async (req, res) => {
   return res.status(StatusCodes.OK).json(sessions)
 }
 
+
 // Session.updateMany({}, { subscriptionPlan: '62ec3899e95128f1c4e5f8db' }).then(
 //   (res) => console.log(res)
 // )

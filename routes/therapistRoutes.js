@@ -9,7 +9,6 @@ const {
   deleteTherapist,
   getMe,
   updateMe,
-  getAllMySessions,
   addSessionNotes,
   getAllMyAppointments,
   modifyAppointment,
@@ -32,16 +31,17 @@ therapistRouter
   .post(restrictRouteTo('admin'), addTherapist)
 
 therapistRouter.use(restrictRouteTo('therapist'))
+
 therapistRouter.route('/me').get(getMe).patch(updateMe)
 therapistRouter.patch('/update-password', updatePassword)
-
+therapistRouter.get("/my-sessions",getMySessions)
 therapistRouter
   .route('/:therapistID')
   .patch(restrictRouteTo('admin'), updateTherapist)
   .delete(restrictRouteTo('admin'), deleteTherapist)
   .get(getTherapist)
-therapistRouter.get("/my-sessions",getMySessions)
-therapistRouter.get('/me/sessions', getAllMySessions)
+
+// therapistRouter.get('/me/sessions', getAllMySessions)
 therapistRouter.route('/me/sessions/:sessionID/notes').post(addSessionNotes)
 therapistRouter.use('/me/sessions/:sessionID/chats/', chatRouter)
 therapistRouter

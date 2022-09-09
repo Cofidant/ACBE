@@ -21,6 +21,7 @@
     "axios": "^0.27.2",
     "bcryptjs": "^2.4.3",
     "config": "^3.3.7",
+    "connect-mongo": "^4.6.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",

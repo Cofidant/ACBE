@@ -1,6 +1,7 @@
 const { StatusCodes } = require('http-status-codes')
 const { BadRequest } = require('../errors')
 const Session = require('../models/Session')
+const SubscriptionPlan = require('../models/SubscriptionPlan')
 const catchAsync = require('../utils/catchAsync')
 const Email = require('../utils/email')
 const { getEndDate, validateId } = require('../utils/myUtills')
@@ -14,19 +15,19 @@ exports.paymentMiddleware = catchAsync(async (req, res, next) => {
     return res.status(401).json({ message: 'invalid session id' })
 
   // Get The Session
-  const session = await Session.findById(sessionID).populate('subscriptionPlan')
+  const session = await Session.findById(sessionID)
+  //.populate('subscriptionPlan')
   if (!session) return next(new BadRequest('Invalid Session Id'))
-
   // Check If Session is alredy paid
   if (session.paymentStatus === 'paid')
     return next(new BadRequest('Session is already paid!'))
 
   const { email, _id, username } = session.patient
-  let { price } = session.subscriptionPlan
-
+  let sub = await SubscriptionPlan.findById(session.subscriptionPlan)
+console.log(sub)
   const paymentData = {
     email,
-    amount: price * 100 * (process.env.DOLLAR_RATE || 600),
+    amount: sub.price * 100 * (process.env.DOLLAR_RATE || 600),
     // currency: 'NGN',
   }
 

@@ -10,26 +10,27 @@ exports.deleteSubPlan = factoryController.deleteOne(SubscriptionPlan)
 // SubscriptionPlan.create([
 //   {
 //     title: '1-Month Plan',
-//     price: 12000,
+//     price: 120,
 //     duration: 1,
 //   },
 //   {
 //     title: '3-Month Plan',
-//     price: 18000,
+//     price: 180,
 //     duration: 3,
 //   },
 //   {
 //     title: '6-month Premium',
-//     price: 200000,
+//     price: 2000,
 //     duration: 1,
-//     discount: 800,
+//     discount: 8,
 //   },
 // ])
 //   .then((res) => console.log(res))
 //   .catch((err) => console.log(err))
-// SubscriptionPlan.find().then(res =>{
-//     res.map(item =>{ SubscriptionPlan.findOneAndRemove(item).then(()=>{console.log("deleted")})})
+     SubscriptionPlan.find().then(res =>{
+    console.log(res)
+    // res.map(item =>{ SubscriptionPlan.findOneAndRemove(item).then(()=>{console.log("deleted")})})
    
-// })
+     })
 
 
