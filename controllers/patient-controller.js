@@ -65,11 +65,17 @@ module.exports.getMe = catchAsync(async (req, res, next) => {
 exports.updateMe = factoryController.updateMe(Patient)
 
 module.exports.getTherapy = catchAsync(async (req, res, next) => {
+  const profile = req.body.profile || req.body
+
   //get available therapist
   const potentialTherapists = await fetchTherapist(
-    req.body.profile || req.body,
+    profile,
     process.env.MAXSESSION || 10
   )
+  // save request profile to user
+  Patient.findByIdAndUpdate(req.user._id, {
+    $addToSet: { requestProfiles: profile },
+  })
   res.status(StatusCodes.OK).json({
     status: 'success',
     results: potentialTherapists.length,

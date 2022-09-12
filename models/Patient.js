@@ -3,6 +3,11 @@ const User = require('./User')
 
 const patientSchema = mongoose.Schema({
   username: String,
+  requestProfiles: [
+    {
+      type: mongoose.SchemaTypes.Mixed,
+    },
+  ],
 })
 
 patientSchema.virtual('stories', {

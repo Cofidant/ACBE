@@ -64,9 +64,10 @@ exports.createOne = (Model) =>
 exports.updateMe = (Model) =>
   catchAsync(async (req, res, next) => {
     const data = req.body
-
-    if (data.hasOwnProperty('password') || data.hasOwnProperty('_kind'))
-      return next(new BadRequest('Unauthorized field included!'))
+    const forbidden = ['password', '_kind', 'clearance']
+    for (const field of forbidden)
+      if (data.hasOwnProperty(field))
+        return next(new BadRequest(`Unauthorized field (${field}) included!`))
     const updated = await Model.findByIdAndUpdate(req.user._id, data, {
       new: true,
     })
@@ -85,7 +86,7 @@ exports.allowEdits = (Model, field = 'authorID') =>
     }
     //you cant change author or publish post via this route
     ;[field, 'published'].forEach((field) => {
-      if (req.body[field]) delete req.body[field]
+      if (req.body.hasOwnProperty(field)) delete req.body[field]
     })
 
     next()
@@ -95,12 +96,12 @@ exports.like = (Model) =>
     const id = Model.modelName.toLowerCase() + 'ID'
     let method = 'post'
     let liked = await Model.updateOne(
-      { _id: req.params[id], claps: { $nin: [req.user.id] } },
+      { _id: req.params[id], claps: { $ne: req.user.id } },
       { $addToSet: { claps: req.user.id } }
     )
     if (liked.nModified == 0 && req.method == 'DELETE') {
       liked = await Model.updateOne(
-        { _id: req.params[id], claps: { $in: req.user.id } },
+        { _id: req.params[id], claps: req.user.id },
         { $pull: { claps: req.user.id } }
       )
       method = 'delet'

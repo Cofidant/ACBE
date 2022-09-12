@@ -26,3 +26,29 @@ exports.getEndDate = (month) => {
 exports.validateId = (id) => {
   return mongoose.Types.ObjectId.isValid(id)
 }
+
+/**
+ * Validate an admin level password
+ * @param {String} password The password to validate
+ * @return {[Boolean, String]} index 0 validate?, index 1 message
+ */
+
+exports.validateAdminPassword = (password) => {
+  // check length
+  if (password.length < 8) {
+    return [false, 'Password length should be atleast 8 characters']
+  }
+  const requirements = new Array()
+  requirements.push(['[A-Z]', 'Password must contian Uppercase Alphabates']) //
+  requirements.push(['[a-z]', 'Password must contain Lowercase Alphabates']) //
+  requirements.push(['[0-9]', 'Password must contain Digits']) // Numbers
+  requirements.push(['[$@$!%*#?&]', 'Password must contain Special Charector']) //
+
+  // Check Requirements
+  for (var i = 0; i < requirements.length; i++) {
+    if (!new RegExp(requirements[i][0]).test(password))
+      return [false, requirements[i][1]]
+  }
+  // All requirements passed
+  return [true, 'Validated!!']
+}
