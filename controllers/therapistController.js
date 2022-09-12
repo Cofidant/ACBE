@@ -12,13 +12,13 @@ exports.getMe = catchAsync(async (req, res, next) => {
 })
 
 // get all sessions of active therapist
-exports.getAllMySessions = catchAsync(async (req, res, next) => {
-  const therapist = req.user._id
-  const sessions = await Session.find({ therapist }).sort('-expiryDate')
-  res
-    .status(StatusCodes.OK)
-    .json({ status: 'success', results: sessions.length, data: sessions })
-})
+// exports.getAllMySessions = catchAsync(async (req, res, next) => {
+//   const therapist = req.user._id
+//   const sessions = await Session.find({ therapist }).sort('-expiryDate')
+//   res
+//     .status(StatusCodes.OK)
+//     .json({ status: 'success', results: sessions.length, data: sessions })
+// })
 
 // record a note on a session
 exports.addSessionNotes = catchAsync(async (req, res, next) => {

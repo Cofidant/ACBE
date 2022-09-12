@@ -9,6 +9,7 @@ const expressRateLmt = require('express-rate-limit')
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
 const passport = require('../middlewares/passport')
+const MongoStore = require("connect-mongo")
 
 module.exports = (app) =>{
 
@@ -20,6 +21,9 @@ app.use(
     secret: process.env.jwtSecret,
     resave: false,
     saveUninitialized: false,
+    store:MongoStore.create({
+      mongoUrl:process.env.mongo_URI
+    })
   })
 )
 app.use(passport.initialize())

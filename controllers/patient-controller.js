@@ -106,7 +106,7 @@ module.exports.selectTherapy = catchAsync(async (req, res, next) => {
   if (!therapist || !subPlan) {
     return next(new BadRequest('Invalid therapistID or subscriptionPlan'))
   }
-  z
+  
   // Create The Session with paymentStatus pending
   const newSession = await Session.create({
     patient: req.user._id,
@@ -197,7 +197,32 @@ exports.getPatient = factoryController.getOne(Patient)
 exports.deletePatient = factoryController.deleteOne(Patient)
 exports.createPatient = factoryController.createOne(Patient)
 
-// Patient.updateOne(
-//   { email: 'user1@anonymous.api' },
-//   { email: 'mahadiabuhuraira@gmail.com' }
-// ).then((res) => console.log(res))
+// Session.find().then((res)=>{
+//   console.log(res)
+//   res.map(a=>{
+//     Session.findByIdAndDelete(a._id).then(()=>{
+//       console.log("deleted")
+//     })
+//   })
+// }).catch(err =>{
+//   console.log(err)
+// })
+
+// Therapist.create({
+//   name:"tester",
+//   email:"horlarhyinkaddev@dev.co",
+//   password:"testaroo"
+// }).then(res=>{console.log(res)}).catch((ex)=>{console.log(ex)})
+
+// Session.find().then(res=>{
+//   console.log(res)
+// })
+// Session.create({
+//   therapist:"63121c1f581e4a76a12fa110",
+//   patient:"631223cdca8f99e436091a80"
+// }).then(res=>{console.log(res)})
+//therapistID  6313099537dac36cff12f9d7
+//patientID  631223cdca8f99e436091a80
+//sessionID  63122520703e507d617ec6a5
+
+

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const log = require("../logger")
 
 const connectDB = async (url) => {
   try {
@@ -8,6 +9,7 @@ const connectDB = async (url) => {
       // useFindAndModify: false,
       useUnifiedTopology: true,
     })
+    log("info","connected to db")
   } catch (err) {
     throw new Error(err)
   }
