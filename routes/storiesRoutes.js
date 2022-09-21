@@ -1,6 +1,8 @@
 const express = require('express')
 const storyController = require('../controllers/stories-controller')
 const { restrictRouteTo } = require('../middlewares/authentication')
+const commentRouter = require('./commentRoutes')
+
 const storiesRouter = express.Router({ mergeParams: true })
 
 storiesRouter
@@ -13,5 +15,11 @@ storiesRouter
   .get(storyController.getStory)
   .patch(storyController.allowEditOrDelete, storyController.updateStory)
   .delete(storyController.allowEditOrDelete, storyController.deleteStory)
+
+storiesRouter.use(
+  '/:storyID/comments',
+  storyController.storyFilter,
+  commentRouter
+)
 
 module.exports = storiesRouter

@@ -20,7 +20,7 @@ const postSchema = mongoose.Schema(
     summary: {
       type: String,
       maxlength: [250, 'Summary shouldnt be more than 250 characters'],
-      required: [true, 'Please provide a summary for the post'],
+      // required: [true, 'Please provide a summary for the post'],
     },
     tags: {
       type: [String],
@@ -62,6 +62,7 @@ const postSchema = mongoose.Schema(
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
+    discriminatorKey: '_kind',
   }
 )
 

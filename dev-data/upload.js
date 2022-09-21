@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const dotenv = require('dotenv')
-dotenv.config({ path: './config.env' })
+dotenv.config({ path: '../.env' })
 const fs = require('fs')
 const path = require('path')
 const { argv } = require('process')
@@ -10,9 +10,9 @@ const Post = require('../models/postModel')
 
 mongoose
   .connect(
-    process.env.NODE_ENV == 'development'
+    process.env.NODE_ENV == 'development' && false
       ? process.env.mongo_URI
-      : process.env.DATABASE_VIRTUAL.replace(
+      : process.env.DATABASE_VIRTUAL?.replace(
           '<password>',
           process.env.DB_PASSWORD
         ),
@@ -66,8 +66,8 @@ const deleteData = async (Model, filePath) => {
 const controllerFunc = async (i) => {
   const funcs = [loadData, saveData, deleteData]
   ;[
-    [User, 'users.json'],
-    [SubscriptionPlan, 'subplans.json'],
+    // [User, 'users.json'],
+    // [SubscriptionPlan, 'subplans.json'],
     [Post, 'postsSample.json'],
   ].forEach((params) => funcs[i](...params))
 }

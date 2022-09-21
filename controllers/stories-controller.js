@@ -14,6 +14,13 @@ exports.allowEditOrDelete = catchAsync(async (req, res, next) => {
   next()
 })
 
+exports.storyFilter = catchAsync(async (req, res, next) => {
+  if (req.params.storyID) {
+    req.params.postID = req.params.storyID
+  }
+  next()
+})
+
 exports.getStory = factoryController.getOne(Story)
 exports.createStory = factoryController.createOne(Story)
 exports.updateStory = factoryController.updateOne(Story)
