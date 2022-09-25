@@ -12,10 +12,5 @@ const storySchema = mongoose.Schema({
   },
 })
 
-storySchema.pre(/^find/, function (next) {
-  this.populate('patient', 'username image')
-  next()
-})
-
 const Story = Post.discriminator('story', storySchema)
 module.exports = Story
