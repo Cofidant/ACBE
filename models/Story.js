@@ -7,6 +7,7 @@ const storySchema = mongoose.Schema({
     default: ['Story'],
   },
   summary: {
+    type: String,
     default: 'This is a story about my self...',
   },
 })
