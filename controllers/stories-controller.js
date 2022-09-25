@@ -21,7 +21,10 @@ exports.storyFilter = catchAsync(async (req, res, next) => {
   next()
 })
 
-exports.getStory = factoryController.getOne(Story)
+exports.getStory = factoryController.getOne(Story, [
+  ['authorID', 'username image name'],
+  ['comments', 'content authorID'],
+])
 exports.createStory = factoryController.createOne(Story)
 exports.updateStory = factoryController.updateOne(Story)
 exports.getAllStories = factoryController.getAll(Story)

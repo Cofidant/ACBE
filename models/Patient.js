@@ -15,6 +15,8 @@ patientSchema.virtual('stories', {
   localField: '_id',
   foreignField: 'authorID',
   match: { _kind: 'story' },
+  sort: '-createdAt',
+  limit: 10,
 })
 
 patientSchema.virtual('activeSessions', {

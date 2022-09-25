@@ -6,13 +6,13 @@ const factory = require('./handlerFactory')
 
 exports.assignIDs = catchAsync(async (req, res, next) => {
   if (!req.body.postID) {
-    console.log('no post id')
+    // console.log('no post id')
+    req.body.postID = req.params.postID || req.params.storyID
   }
-  req.body.postID = req.params.postID
   if (!req.body.authorID) {
-    console.log('no auth id')
+    // console.log('no auth id')
+    req.body.authorID = req.user.id
   }
-  req.body.authorID = req.user.id
   next()
 })
 

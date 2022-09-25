@@ -80,6 +80,7 @@ postSchema.pre('save', function (next) {
   if (this.isNew) this.constructor.incrementAuthorPosts(this.authorID)
   next()
 })
+
 postSchema.virtual('comments', {
   ref: 'Comment',
   foreignField: 'postID',

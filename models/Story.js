@@ -4,6 +4,7 @@ const Post = require('./postModel')
 const storySchema = mongoose.Schema({
   display: Boolean,
   tags: {
+    type: [String],
     default: ['Story'],
   },
   summary: {

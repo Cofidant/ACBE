@@ -106,7 +106,7 @@ module.exports.selectTherapy = catchAsync(async (req, res, next) => {
   if (!therapist || !subPlan) {
     return next(new BadRequest('Invalid therapistID or subscriptionPlan'))
   }
-  
+
   // Create The Session with paymentStatus pending
   const newSession = await Session.create({
     patient: req.user._id,
@@ -190,6 +190,7 @@ exports.patientFilter = (req, res, next) => {
   req.filter = { patient: req.user._id }
   req.query.fields = req.query.fields ? `${req.query.fields},-notes` : '-notes'
   req.body.patient = req.user._id
+  if (!req.body.authorID) req.body.authorID = req.user._id
   next()
 }
 exports.getAllPatients = factoryController.getAll(Patient)
@@ -224,5 +225,3 @@ exports.createPatient = factoryController.createOne(Patient)
 //therapistID  6313099537dac36cff12f9d7
 //patientID  631223cdca8f99e436091a80
 //sessionID  63122520703e507d617ec6a5
-
-
