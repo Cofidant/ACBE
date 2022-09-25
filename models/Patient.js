@@ -13,7 +13,8 @@ const patientSchema = mongoose.Schema({
 patientSchema.virtual('stories', {
   ref: 'Post',
   localField: '_id',
-  foreignField: 'patient',
+  foreignField: 'authorID',
+  match: { _kind: 'story' },
 })
 
 patientSchema.virtual('activeSessions', {
