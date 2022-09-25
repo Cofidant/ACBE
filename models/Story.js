@@ -3,6 +3,12 @@ const Post = require('./postModel')
 
 const storySchema = mongoose.Schema({
   display: Boolean,
+  tags: {
+    default: ['Story'],
+  },
+  summary: {
+    default: 'This is a story about my self...',
+  },
 })
 
 storySchema.pre(/^find/, function (next) {

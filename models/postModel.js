@@ -15,12 +15,12 @@ const postSchema = mongoose.Schema(
       maxlength: [100, 'Title shouldnt be more than 60 characters'],
       required: [true, 'Please provide a title for the post'],
       unique: [true, 'Title already exists, please re-caption your post!'],
-      minlength: [15, 'A title should be atleast 15 characters'],
+      minlength: [5, 'A title should be atleast 5 characters'],
     },
     summary: {
       type: String,
       maxlength: [250, 'Summary shouldnt be more than 250 characters'],
-      // required: [true, 'Please provide a summary for the post'],
+      required: [true, 'Please provide a summary for the post'],
     },
     tags: {
       type: [String],
