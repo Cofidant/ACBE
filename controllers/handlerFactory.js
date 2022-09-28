@@ -91,21 +91,31 @@ exports.allowEdits = (Model, field = 'authorID') =>
 
     next()
   })
+
+/**
+ * Like or unlike a post | story | comment
+ * @param {Model} Model The model of the document to like
+ * @returns
+ */
 exports.like = (Model) =>
   catchAsync(async (req, res, next) => {
     const id = Model.modelName.toLowerCase() + 'ID'
     let method = 'post'
-    let liked = await Model.updateOne(
-      { _id: req.params[id], claps: { $ne: req.user.id } },
-      { $addToSet: { claps: req.user.id } }
-    )
-    if (liked.nModified == 0 && req.method == 'DELETE') {
-      liked = await Model.updateOne(
-        { _id: req.params[id], claps: req.user.id },
-        { $pull: { claps: req.user.id } }
-      )
+    let action = req.method.toLowerCase()
+    let liked
+    // Like for Post Method
+    if (action === 'post') {
+      liked = await Model.findByIdAndUpdate(req.params[id], {
+        $addToSet: { claps: req.user.id },
+      })
+    } else if (action === 'delete') {
+      //Unlike for delete
+      liked = await Model.findByIdAndUpdate(req.params[id], {
+        $pull: { claps: req.user.id },
+      })
       method = 'delet'
     }
+
     res.status(200).json({
       status: 'success',
       message: `Like ${method}ed successfully`,

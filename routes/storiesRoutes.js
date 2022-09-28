@@ -16,6 +16,11 @@ storiesRouter
   .patch(storyController.allowEditOrDelete, storyController.updateStory)
   .delete(storyController.allowEditOrDelete, storyController.deleteStory)
 
+storiesRouter
+  .route('/:storyID/like')
+  .post(storyController.likeStory)
+  .delete(storyController.likeStory)
+
 storiesRouter.use(
   '/:storyID/comments',
   storyController.storyFilter,
