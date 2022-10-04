@@ -1,5 +1,17 @@
 const mongoose = require('mongoose')
 
+exports.specializations = [
+  'dating',
+  'marriage',
+  'depression',
+  'divorce',
+  'child',
+  'food',
+  'exercise',
+  'personalityDisorder',
+  'suicide',
+]
+
 exports.getDuration = (dateCreated) => {
   const timeDiff = Date.now() - dateCreated
   const dateVars = {
@@ -51,4 +63,14 @@ exports.validateAdminPassword = (password) => {
   }
   // All requirements passed
   return [true, 'Validated!!']
+}
+
+/**
+ * Calculate the Order of Intersectin of two arrays
+ * @param {Array} arr1 Array 1
+ * @param {Array} arr2 Array 2
+ * @return {Number} number of elements present in both arrays
+ */
+exports.getIntersectionCount = (arr1, arr2) => {
+  return arr1.filter((x) => arr2.includes(x)).length
 }

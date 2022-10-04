@@ -7,17 +7,24 @@ const factoryController = require('./handlerFactory')
 const { BadRequest, InternalServerError } = require('../errors')
 const SubscriptionPlan = require('../models/SubscriptionPlan')
 const Email = require('../utils/email')
+const { getIntersectionCount } = require('../utils/myUtills')
 
 // create a search weight Function
 const getTherapistSuitabilty = (therapist, profile) => {
   let suitability = 0
+
   // specialization has highest weight
-  if (therapist.specialization?.includes(profile.problem)) suitability += 15
+  // For each match of problem-to-specialization a weight of 5
+  suitability +=
+    getIntersectionCount(therapist.specialization, profile.problems) * 5
+
   if (therapist.sexPreference == profile.gender) suitability += 2
   if (therapist.isWithinAgeRange(profile.age)) suitability += 2
   if (therapist.religionPreference == profile.religion) suitability += 2
   if (therapist.statusPreference == profile.status) suitability += 2
-  if (therapist.locationPreference == profile.location) suitability += 2
+  if (therapist.locationPreference.state == profile.state) suitability += 2
+  if (therapist.locationPreference.country == profile.country) suitability += 1
+
   //   consider years of experience and patient rating
   suitability += therapist.years_of_experience + therapist.averageRating
 

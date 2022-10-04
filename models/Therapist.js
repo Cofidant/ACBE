@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const { specializations } = require('../utils/myUtills')
 const User = require('./User')
 
 const therapistSchema = mongoose.Schema({
@@ -39,7 +40,16 @@ const therapistSchema = mongoose.Schema({
       return `Hi, I'am Dr. ${this.name}`
     },
   },
-  specialization: [String],
+  specialization: {
+    type: [String],
+    validate: {
+      validator: function (array) {
+        if (array.length > 4) return false
+        return array.every((val) => specializations.includes(val))
+      },
+      message: 'Exceed maximum values or\nInvalid specialization',
+    },
+  },
   state: {
     type: String,
   },
@@ -61,7 +71,8 @@ const therapistSchema = mongoose.Schema({
     type: String,
   },
   locationPreference: {
-    type: String,
+    country: String,
+    state: String,
   },
   religionPreference: {
     type: String,
