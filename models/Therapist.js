@@ -54,6 +54,16 @@ const therapistSchema = mongoose.Schema({
     type: String,
   },
   lga: String,
+  availableTimes:{
+    _id:false,
+    monday:{type:String, default:"09:00am - 05:00pm"},
+    tuesday:{type:String, default:"09:00am - 05:00pm"},
+    wednesday:{type:String, default:"09:00am - 05:00pm"},
+    thursday:{type:String, default:"09:00am - 05:00pm"},
+    friday:{type:String, default:"09:00am - 05:00pm"},
+    saturday:{type:String, default:"09:00am - 05:00pm"},
+    sunday:{type:String, default:"09:00am - 05:00pm"},
+  }
   agePreference: {
     upper: {
       type: Number,
