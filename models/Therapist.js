@@ -42,6 +42,7 @@ const therapistSchema = mongoose.Schema({
   },
   specialization: {
     type: [String],
+    default: ['depression'],
     validate: {
       validator: function (array) {
         if (array.length > 4) return false

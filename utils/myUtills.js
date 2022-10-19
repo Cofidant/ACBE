@@ -72,5 +72,5 @@ exports.validateAdminPassword = (password) => {
  * @return {Number} number of elements present in both arrays
  */
 exports.getIntersectionCount = (arr1, arr2) => {
-  return arr1.filter((x) => arr2.includes(x)).length
+  return arr1.filter((x) => arr2?.includes(x)).length
 }

@@ -16,7 +16,10 @@ const getTherapistSuitabilty = (therapist, profile) => {
   // specialization has highest weight
   // For each match of problem-to-specialization a weight of 5
   suitability +=
-    getIntersectionCount(therapist.specialization, profile.problems) * 5
+    getIntersectionCount(
+      therapist.specialization || [],
+      profile.problems || []
+    ) * 5
 
   if (therapist.sexPreference == profile.gender) suitability += 2
   if (therapist.isWithinAgeRange(profile.age)) suitability += 2
