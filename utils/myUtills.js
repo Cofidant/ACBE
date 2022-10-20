@@ -30,7 +30,7 @@ exports.getDuration = (dateCreated) => {
       return `${no} ${timeParam}${no > 1 ? 's' : ''} ago`
     }
   }
-  return '0 seconds ago'
+  return '0 second ago'
 }
 exports.getEndDate = (month) => {
   return new Date(new Date().getTime() + month * 30 * 24 * 60 * 60 * 1000)
@@ -48,7 +48,7 @@ exports.validateId = (id) => {
 exports.validateAdminPassword = (password) => {
   // check length
   if (password.length < 8) {
-    return [false, 'Password length should be atleast 8 characters']
+    return [false, 'Password length should be at least 8 characters']
   }
   const requirements = new Array()
   requirements.push(['[A-Z]', 'Password must contian Uppercase Alphabates']) //
