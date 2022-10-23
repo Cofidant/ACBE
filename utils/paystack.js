@@ -1,5 +1,6 @@
 const axios = require('axios')
 const MyError = require('./myError')
+const log = require("../logger")
 
 const mySecretKey = `Bearer ${process.env.PAYSTACK_KEY}`
 exports.initializePayment = async (data, mycallback) => {
@@ -18,7 +19,7 @@ exports.initializePayment = async (data, mycallback) => {
     // console.log(data);
     mycallback(data)
   } catch (error) {
-    console.log(error)
+    log("error",error)
     throw new MyError(error.message, 500)
   }
 }
