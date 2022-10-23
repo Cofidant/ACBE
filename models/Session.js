@@ -75,10 +75,10 @@ const sessionSchema = mongoose.Schema(
         message: 'paymentStatus is either paid or pending',
       },
     },
-    socketIDs:{
-      type:Array,
-      default:[]
-    }
+    socketIDs: {
+      type: Array,
+      default: [],
+    },
   },
   {
     timestamps: true,
@@ -97,7 +97,7 @@ sessionSchema.virtual('expired').get(function () {
 
 // Hooks
 sessionSchema.pre(/^find/, function (next) {
-  this.populate('therapist', 'name image username email')
+  this.populate('therapist', 'name image username email availableTimes')
     .populate('patient', 'username image email name')
     .sort('-createdAt')
   next()
@@ -108,21 +108,28 @@ sessionSchema.statics.getTherapistAppointmennts = async function (therapist) {
 
   // get therapist active Sessions
   const activeSessions = await this.find({
-    therapist,
+    therapist: therapist._id || therapist,
     hoursRemaining: { $gt: 0 },
   }).select('appointments')
 
   // for each session find the active appointments
-  activeSessions.array.forEach((element) => {
-    const appointments = element.appointments.filter(
-      (ap) => ap.start_time >= Date.now() && ap.status == 'active'
-    )
+  activeSessions.forEach((element) => {
+    const appointments =
+      element.appointments?.filter(
+        (ap) => ap.start_time?.getTime() >= Date.now() && ap.status == 'active'
+      ) || []
     activeAppointments.push(...appointments)
   })
 
   return activeAppointments
 }
 
+/**
+ * Check if a new appointment will overlap with exsting appointments
+ * @param {Therapist} therapist The therapist object
+ * @param {Date} time the appointment time
+ * @returns {Bolean}
+ */
 sessionSchema.statics.checkAppointmentOverlap = async function (
   therapist,
   time
@@ -133,7 +140,10 @@ sessionSchema.statics.checkAppointmentOverlap = async function (
   // an appointment overlaps if the time is within 2hrs15min
   // (135 mins) of the start_time of active appointments
   for (const apt of activeAppointments) {
-    if (time >= apt.start_time && time <= apt.start_time + 135 * 60)
+    if (
+      time.getTime() >= apt.start_time?.getTime() &&
+      time.getTime() <= apt.start_time?.getTime() + 135 * 60
+    )
       return false
   }
 

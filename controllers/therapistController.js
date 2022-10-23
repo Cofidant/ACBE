@@ -4,6 +4,7 @@ const Session = require('../models/Session')
 const Therapist = require('../models/Therapist')
 const catchAsync = require('../utils/catchAsync')
 const Email = require('../utils/email')
+const MyError = require('../utils/myError')
 const factoryController = require('./handlerFactory')
 
 exports.getMe = catchAsync(async (req, res, next) => {
@@ -54,15 +55,41 @@ exports.getAllMyAppointments = catchAsync(async (req, res, next) => {
 
 exports.modifyAppointment = catchAsync(async (req, res, next) => {
   const { appointmentID, sessionID } = req.params
-  const { status } = req.body
+  const status = req.body.status?.toLowerCase()
 
+  const session = await Session.findById(sessionID)
+  if (!session) return next(new BadRequest('Invalid sessionID'))
+
+  // Check if appointment exist
+  const appointment = session.appointments.find(
+    (app) => app._id == appointmentID
+  )
+  if (!appointment)
+    return next(new BadRequest('No appointment with the given appointmentID'))
+
+  // check if appointment is already completed
+  if (appointment.status === 'complete')
+    return next(
+      new MyError('Appointment is already completed', StatusCodes.FORBIDDEN)
+    )
+
+  if (!['accept', 'reject'].includes(status)) {
+    return next(
+      new BadRequest(
+        "invalid status! status should be either 'accept' or 'reject'"
+      )
+    )
+  }
+  const appStatus = status === 'accept' ? 'active' : 'cancelled'
+  const resetHour = status === 'accept' ? 0 : 2
   const updated = await Session.updateOne(
     {
       _id: sessionID,
       'appointments._id': appointmentID,
     },
     {
-      'appointments.$.status': status,
+      'appointments.$.status': appStatus,
+      $inc: { hoursRemaining: resetHour },
     },
     { new: true }
   )

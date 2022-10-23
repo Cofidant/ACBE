@@ -63,6 +63,7 @@ const fetchTherapist = async (profile, maxActiveSession) => {
     rating: th.averageRating,
     work_experience: `${th.years_of_experience} Years`,
     image: th.image,
+    availableTimes: th.availableTimes,
   }))
 }
 
@@ -145,7 +146,7 @@ module.exports.selectTherapy = catchAsync(async (req, res, next) => {
 
 exports.bookAppointment = catchAsync(async (req, res, next) => {
   const { sessionID } = req.params
-  const { time } = req.body
+  const time = req.body.time || req.body.startTime
   const start_time = new Date(time)
   if (!time || start_time == 'Invalid Date')
     return next(
@@ -177,7 +178,7 @@ exports.bookAppointment = catchAsync(async (req, res, next) => {
     $push: {
       appointments: {
         start_time,
-        end_time: start_time + 130 * 60,
+        end_time: new Date(start_time.getTime() + 130 * 60),
         status: 'pending',
       },
     },
