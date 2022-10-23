@@ -1,13 +1,13 @@
 const mongoose = require('mongoose')
 const dotenv = require('dotenv')
-dotenv.config({ path: '../.env' })
 const fs = require('fs')
 const path = require('path')
+dotenv.config({ path: path.join(__dirname, '../.env') })
 const { argv } = require('process')
 const User = require('../models/User')
 const SubscriptionPlan = require('../models/SubscriptionPlan')
 const Post = require('../models/postModel')
-
+// console.log(process.env.DATABASE_VIRTUAL)
 mongoose
   .connect(
     process.env.NODE_ENV == 'development' && false
@@ -67,7 +67,7 @@ const controllerFunc = async (i) => {
   const funcs = [loadData, saveData, deleteData]
   ;[
     // [User, 'users.json'],
-    // [SubscriptionPlan, 'subplans.json'],
-    [Post, 'postsSample.json'],
+    [SubscriptionPlan, 'subplans.json'],
+    // [Post, 'postsSample.json'],
   ].forEach((params) => funcs[i](...params))
 }

@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './config.env' })
+require('dotenv').config({ path: './.env' })
 require('express-async-errors')
 const log = require('./logger')
 const express = require('express')

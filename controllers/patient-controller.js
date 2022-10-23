@@ -127,7 +127,7 @@ module.exports.selectTherapy = catchAsync(async (req, res, next) => {
   })
 
   // Send Notification Email
-  new Email(req.user, (url = 'https://anonymous-confidant.com'))
+  new Email(req.user, 'https://anonymous-confidant.com')
     .sendReservationNotice(therapist)
     .catch((err) => console.log('Error sending Email >>>', err.message))
 
