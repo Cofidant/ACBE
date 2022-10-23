@@ -24,7 +24,6 @@ exports.paymentMiddleware = catchAsync(async (req, res, next) => {
 
   const { email, _id, username } = session.patient
   let sub = await SubscriptionPlan.findById(session.subscriptionPlan)
-console.log(sub)
   const paymentData = {
     email,
     amount: sub.price * 100 * (process.env.DOLLAR_RATE || 600),
