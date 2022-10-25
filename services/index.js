@@ -1,37 +1,39 @@
 const Session = require('../models/Session')
 const Email = require('../utils/email')
-
-const fifteenMinutes = 15 * 60 * 1000
-const thirtyMinutes = fifteenMinutes * 2
-const twoHours = thirtyMinutes * 4
-const twenty4hours = twoHours * 12
-
-const sleep = (ms) => new Promise((res) => setTimeout(res, ms))
+const logger = require('../logger')
+const {
+  sleep,
+  fifteenMinutes,
+  thirtyMinutes,
+  twenty4hours,
+} = require('../utils/date_funcs')
 
 // Delete Sessions That are reserved but not paid later than 24 hours
 ;(async function () {
   while (true) {
     try {
-      await sleep(12000)
+      await sleep(fifteenMinutes / 15)
       const sessions = await Session.find({
         paymentStatus: 'pending',
       })
       for (const session of sessions) {
         // only those sessions later than 24 hours from date reserved
         if (session.createdAt.getTime() + twenty4hours <= Date.now()) {
-          await Session.findByIdAndDelete(session._id)
+          Session.findByIdAndDelete(session._id).catch((err) =>
+            logger('error', err)
+          )
           // Send Removal Email
-          await new Email(session.patient).sendReservationExpired()
+          new Email(session.patient).sendReservationExpired().then(() => {})
         }
       }
     } catch (error) {
-      console.log('Error occured >>>>', error)
+      logger('error', error)
     }
   }
 })()
 
 // Send Notifications For Appointments that are due in 30 minutes
-// mark appointments that are complete (two hrs 15 mins ahead of their start_time) as complete
+// mark appointments that are complete (end_time <= current time) as complete
 ;(async function () {
   while (true) {
     try {
@@ -50,16 +52,17 @@ const sleep = (ms) => new Promise((res) => setTimeout(res, ms))
             app.start_time.getTime() - thirtyMinutes <= Date.now()
           ) {
             // send email to both therapist and patient
-            await new Email(session.therapist).sendAppointmentNotification(app)
-            await new Email(session.patient).sendAppointmentNotification(app)
+            new Email(session.therapist)
+              .sendAppointmentNotification(app)
+              .then(() => {})
+            new Email(session.patient)
+              .sendAppointmentNotification(app)
+              .then(() => {})
             continue
           }
 
           // mark completed
-          if (
-            app.start_time.getTime() + twoHours + fifteenMinutes <=
-            Date.now()
-          ) {
+          if (app.end_time <= Date.now()) {
             await Session.updateOne(
               { _id: session._id, 'appointments._id': app._id },
               { 'appointments.$.status': 'complete' }
@@ -68,7 +71,8 @@ const sleep = (ms) => new Promise((res) => setTimeout(res, ms))
         }
       }
     } catch (error) {
-      console.log('Error occured >>>>', error)
+      logger('error', error)
+      sleep(fifteenMinutes / 15)
     }
   }
 })()

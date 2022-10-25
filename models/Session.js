@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 
 const appointmentSchema = mongoose.Schema({
+  title: String,
   start_time: {
     type: Date,
   },
@@ -15,7 +16,7 @@ const appointmentSchema = mongoose.Schema({
     enum: {
       values: ['active', 'cancelled', 'complete', 'pending'],
       message:
-        "status is one of ('active', 'canceled','pending' or 'complete')",
+        "status is one of ('active', 'cancelled','pending' or 'complete')",
     },
   },
 })

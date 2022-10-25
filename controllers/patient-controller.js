@@ -8,6 +8,7 @@ const { BadRequest, InternalServerError } = require('../errors')
 const SubscriptionPlan = require('../models/SubscriptionPlan')
 const Email = require('../utils/email')
 const { getIntersectionCount } = require('../utils/myUtills')
+const { twoHours, fifteenMinutes } = require('../utils/date_funcs')
 
 // create a search weight Function
 const getTherapistSuitabilty = (therapist, profile) => {
@@ -147,6 +148,7 @@ module.exports.selectTherapy = catchAsync(async (req, res, next) => {
 exports.bookAppointment = catchAsync(async (req, res, next) => {
   const { sessionID } = req.params
   const time = req.body.time || req.body.startTime
+  const title = req.body.title || 'Appointment'
   const start_time = new Date(time)
   if (!time || start_time == 'Invalid Date')
     return next(
@@ -178,8 +180,11 @@ exports.bookAppointment = catchAsync(async (req, res, next) => {
     $push: {
       appointments: {
         start_time,
-        end_time: new Date(start_time.getTime() + 130 * 60),
+        end_time: new Date(
+          start_time.getTime() + twoHours + (fifteenMinutes * 2) / 3
+        ),
         status: 'pending',
+        title,
       },
     },
     $inc: { hoursRemaining: -2 },
