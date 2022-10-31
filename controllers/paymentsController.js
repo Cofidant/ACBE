@@ -67,8 +67,8 @@ exports.paystackVerify = catchAsync(async (req, res, next) => {
   // check if transaction is not paid
   if (status !== 'success') {
     return res
-      .status(200)
-      .json({ status: 'success', message: `Payment is ${status}` })
+      .status(StatusCodes.TEMPORARY_REDIRECT)
+      .redirect('htttps://anonymous-next-app.vercel.app/payment-verify')
   }
 
   // Transaction is paid Do the necessary Updates
@@ -88,6 +88,13 @@ exports.paystackVerify = catchAsync(async (req, res, next) => {
     // Create a session for that....
   }
 
+  // Already updated
+  if (session.paymentStatus === 'paid') {
+    return res
+      .status(StatusCodes.TEMPORARY_REDIRECT)
+      .redirect('htttps://anonymous-next-app.vercel.app/payment-verify')
+  }
+
   // Update details of reservation to paid
   session.paymentStatus = 'paid'
   session.paymentMethod = 'paystack'
@@ -104,9 +111,12 @@ exports.paystackVerify = catchAsync(async (req, res, next) => {
 
   // Redirect to Patient Dashboard
   // For now temporary send result via json
-  res.status(200).json({
-    status: 'success',
-    message: `Payment is ${status}`,
-    data: { customer, reference, amount, metadata, status },
-  })
+  res
+    .status(StatusCodes.PERMANENT_REDIRECT)
+    .redirect('htttps://anonymous-next-app.vercel.app/payment-verify')
+  // res.status(200).json({
+  //   status: 'success',
+  //   message: `Payment is ${status}`,
+  //   data: { customer, reference, amount, metadata, status },
+  // })
 })
