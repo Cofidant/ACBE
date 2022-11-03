@@ -67,8 +67,12 @@ exports.paystackVerify = catchAsync(async (req, res, next) => {
   // check if transaction is not paid
   if (status !== 'success') {
     return res
-      .status(StatusCodes.TEMPORARY_REDIRECT)
-      .redirect('htttps://anonymous-next-app.vercel.app/payment-verify')
+      .status(StatusCodes.OK)
+      .json({
+        status: 'success',
+        message: `Payment is ${status}`,
+        data: { customer, reference, amount, metadata, status },
+      })
   }
 
   // Transaction is paid Do the necessary Updates
@@ -90,9 +94,11 @@ exports.paystackVerify = catchAsync(async (req, res, next) => {
 
   // Already updated
   if (session.paymentStatus === 'paid') {
-    return res
-      .status(StatusCodes.TEMPORARY_REDIRECT)
-      .redirect('htttps://anonymous-next-app.vercel.app/payment-verify')
+    return res.status(StatusCodes.OK).json({
+      status: 'success',
+      message: `Payment is ${status}`,
+      data: { customer, reference, amount, metadata, status },
+    })
   }
 
   // Update details of reservation to paid
@@ -104,19 +110,16 @@ exports.paystackVerify = catchAsync(async (req, res, next) => {
   await session.save()
 
   // Send Payment Successfull
-  new Email(req.user)
-    .sendPaymentSuccessful(session.toJSON())
-    .then(() => {})
-    .catch((err) => console.log('Err Sending Email >>>' + err.message))
+  new Email(req.user).sendPaymentSuccessful(session.toJSON()).then(() => {})
 
   // Redirect to Patient Dashboard
   // For now temporary send result via json
-  res
-    .status(StatusCodes.PERMANENT_REDIRECT)
-    .redirect('htttps://anonymous-next-app.vercel.app/payment-verify')
-  // res.status(200).json({
-  //   status: 'success',
-  //   message: `Payment is ${status}`,
-  //   data: { customer, reference, amount, metadata, status },
-  // })
+  // res
+  //   .status(StatusCodes.PERMANENT_REDIRECT)
+  //   .redirect('htttps://anonymous-next-app.vercel.app/payment-verify')
+  res.status(200).json({
+    status: 'success',
+    message: `Payment is ${status}`,
+    data: { customer, reference, amount, metadata, status },
+  })
 })
