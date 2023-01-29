@@ -9,7 +9,6 @@
   "scripts": {
     "start": "node server.js",
     "server": "nodemon server.js",
-    "build":"npm run build",
     "load_data_data": "node ./dev-data/upload.js --import",
     "save_data": "node ./dev-data/upload.js --save",
     "test":"jest --verbose --coverage --watchAll"
