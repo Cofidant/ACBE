@@ -1,11 +1,10 @@
 const express = require('express')
-
+const mongoose = require('mongoose')
 const path = require('path')
 const helmet = require('helmet')
 const cors = require('cors')
 const xss = require('xss-clean')
 const expressRateLmt = require('express-rate-limit')
-// const express = require('express')
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
 const passport = require('../middlewares/passport')
@@ -21,9 +20,10 @@ module.exports = (app) => {
       resave: false,
       saveUninitialized: false,
       store: MongoStore.create({
-        mongoUrl:process.env.NODE_ENV == 'development'
+        mongoUrl:process.env.mongo_URI
+        /*mongoUrl:process.env.NODE_ENV == 'development'
             ? process.env.mongo_URI
-            : process.env.DATABASE_VIRTUAL?.replace('<password>',process.env.DB_PASSWORD),
+            : process.env.DATABASE_VIRTUAL?.replace('<password>',process.env.DB_PASSWORD)*/
       }),
     }))
   app.use(passport.initialize())
